@@ -1,0 +1,26 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node / JS dependencies (Focus Gate has zero dependencies, but ignore if created)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Private logs & data
+*.log
+*.tmp
+*.temp
+embed-youtube-web-apps-in-workspace.json
+*.jsonl
+
+# Scratch test files
+scratch/
+test_*.js

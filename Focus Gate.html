@@ -1,0 +1,2200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Focus Gate</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ffc978'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%23ffc978' stroke-opacity='.35'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#06080c;
+  --panel:rgba(255,255,255,.045);
+  --panel-solid:#0d1117;
+  --line:rgba(255,255,255,.09);
+  --ink:#e8ebf2;
+  --dim:#8792a5;
+  --faint:#5b6577;
+  --accent:#ffc978;
+  --accent-ink:#241703;
+  --air:#9ed8ff;
+  --good:#8fe3b0;
+  --bad:#ff8a8a;
+  --mono:'Cascadia Mono','Consolas','SF Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(1200px 800px at 50% -10%, #0d1220 0%, var(--bg) 60%);
+  color:var(--ink);
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+::selection{background:rgba(255,201,120,.25)}
+a{color:var(--accent)}
+
+/* ---------- generic ---------- */
+.screen{position:fixed;inset:0;display:none;flex-direction:column;overflow:hidden}
+.screen.on{display:flex;animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px;text-align:center}
+.dim{color:var(--dim)}
+.faint{color:var(--faint)}
+.ghost{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13px;color:var(--dim);transition:.2s}
+.ghost:hover{color:var(--ink);border-color:rgba(255,255,255,.22)}
+.btn{display:inline-flex;align-items:center;gap:9px;border-radius:14px;padding:13px 26px;font-size:15px;font-weight:600;border:1px solid transparent;transition:.18s}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.btn.big{font-size:17px;padding:17px 42px;border-radius:18px}
+.btn.soft{background:var(--panel);border:1px solid var(--line)}
+.btn.soft:hover{border-color:rgba(255,255,255,.25)}
+.tiny{font-size:12.5px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.5px}
+
+/* ---------- home ---------- */
+#scr-home .center{max-width:560px;margin:0 auto;width:100%}
+.subject-row{width:100%;display:flex;flex-direction:column;gap:14px}
+#inSubject{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 20px;font-size:19px;text-align:center;color:var(--ink);outline:none;transition:.2s;width:100%}
+#inSubject:focus{border-color:rgba(255,201,120,.5);background:rgba(255,201,120,.05)}
+#inSubject::placeholder{color:var(--faint)}
+#inIntention{background:transparent;border:none;border-bottom:1px solid var(--line);padding:9px 4px;text-align:center;font-size:14px;color:var(--dim);outline:none;width:100%}
+#inIntention:focus{color:var(--ink);border-color:rgba(255,201,120,.4)}
+#chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;color:var(--dim);transition:.15s}
+.chip:hover{color:var(--accent);border-color:rgba(255,201,120,.45)}
+#warmHint{font-size:13px;color:var(--faint);font-style:italic;min-height:18px;max-width:460px}
+.glance{display:flex;gap:22px;justify-content:center;font-size:13px;color:var(--dim)}
+.glance b{color:var(--ink)}
+.topbar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:20px 26px;z-index:5}
+.gate-note{font-size:12.5px;letter-spacing:.3px}
+
+/* ---------- ritual: the point ---------- */
+#scr-point{user-select:none}
+#pointStage{flex:1;display:flex;align-items:center;justify-content:center;position:relative}
+#theDot{width:9px;height:9px;border-radius:50%;background:#fff3d6;position:relative;animation:dotBreath 4.6s ease-in-out infinite}
+#theDot::before{content:'';position:absolute;inset:-5px;border-radius:50%;background:rgba(255,236,200,.35);filter:blur(3px);animation:dotBreath 4.6s ease-in-out infinite}
+#theDot::after{content:'';position:absolute;inset:-16px;border-radius:50%;background:rgba(255,201,120,.14);filter:blur(9px);animation:dotBreath 4.6s ease-in-out infinite reverse}
+@keyframes dotBreath{0%,100%{transform:scale(.86);opacity:.85}50%{transform:scale(1.08);opacity:1}}
+#pointRing{position:absolute;transform:rotate(-90deg)}
+#pointRing circle{fill:none;stroke-width:2}
+#pointRingFg{transition:stroke-dashoffset .25s linear}
+#pointHint{position:absolute;bottom:18%;font-size:15px;color:var(--dim);letter-spacing:.4px;transition:opacity 1.2s}
+.ritual-title{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--faint)}
+
+/* ---------- ritual: the breath ---------- */
+#breathStage{flex:1;display:flex;align-items:center;justify-content:center;position:relative}
+#breathCircle{width:42vmin;height:42vmin;border-radius:50%;background:radial-gradient(circle at 38% 32%, rgba(158,216,255,.28), rgba(158,216,255,.07) 65%, transparent);border:1.5px solid rgba(158,216,255,.4);will-change:transform}
+#breathLabel{position:absolute;font-size:22px;letter-spacing:1.5px;color:var(--air);font-weight:300;text-shadow:0 0 20px rgba(158,216,255,.4)}
+#breathCount{position:absolute;bottom:16%;font-size:13px;color:var(--faint)}
+
+/* ---------- block / break ---------- */
+#scr-block,#scr-break{user-select:none}
+.subject-line{font-size:14px;color:var(--dim);letter-spacing:.4px;max-width:56vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.subject-line b{color:var(--ink);font-weight:600}
+.timer-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:340px;height:340px}
+.timer{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(52px,8vmin,78px);font-weight:600;letter-spacing:2px;line-height:1}
+.ring-outer{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring-outer circle{fill:none;stroke-width:3;stroke-linecap:round}
+#blockRingFg{transition:stroke-dashoffset .3s linear}
+.stage-tag{font-size:12.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--faint)}
+.paused-badge{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(6,8,12,.78);backdrop-filter:blur(6px);border-radius:50%}
+.paused-badge.on{display:flex}
+.paused-badge .pbig{font-family:var(--mono);letter-spacing:6px;font-size:13px;color:var(--accent)}
+.block-note{color:var(--faint);font-size:13.5px;font-style:italic;max-width:520px}
+
+/* ---------- wrap ---------- */
+#scr-wrap .center{width:100%;max-width:560px;margin:0 auto}
+.ratings{display:flex;gap:12px}
+.rate{border:1px solid var(--line);border-radius:16px;padding:13px 22px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--dim);transition:.18s}
+.rate .em{font-size:24px;color:var(--accent)}
+.rate:hover{border-color:rgba(255,255,255,.3)}
+.rate.sel{border-color:var(--accent);color:var(--ink);background:rgba(255,201,120,.07)}
+#taLeftOff{width:100%;min-height:96px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:14.5px;line-height:1.5;resize:vertical;outline:none}
+#taLeftOff:focus{border-color:rgba(255,201,120,.4)}
+.summary{display:flex;gap:26px;font-size:13.5px;color:var(--dim)}
+.summary b{color:var(--ink);font-family:var(--mono)}
+
+/* ---------- stats ---------- */
+#scr-stats{overflow-y:auto}
+.stats-wrap{max-width:680px;margin:0 auto;width:100%;padding:70px 24px 80px;display:flex;flex-direction:column;gap:22px}
+.stat-cards{display:flex;gap:14px}
+.card{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.card .num{font-family:var(--mono);font-size:26px;font-weight:600;margin-top:6px}
+.card .num small{font-size:13px;color:var(--faint);font-weight:400}
+.card .lbl{font-size:12px;color:var(--faint);letter-spacing:1px;text-transform:uppercase}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--faint);font-weight:500;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+td.r,th.r{text-align:right;font-family:var(--mono)}
+.ses-item{border:1px solid var(--line);border-radius:14px;padding:13px 16px;background:var(--panel)}
+.ses-item .row1{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ses-item .subj{font-weight:600;font-size:14.5px}
+.ses-item .when{font-size:12px;color:var(--faint);white-space:nowrap;font-family:var(--mono)}
+.ses-item .row2{display:flex;gap:8px;align-items:center;margin-top:6px;font-size:12.5px;color:var(--dim);flex-wrap:wrap}
+.badge{font-size:10.5px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);letter-spacing:.5px}
+.badge.cont{color:var(--good);border-color:rgba(143,227,176,.35)}
+.badge.gateonly{color:var(--dim)}
+.badge.r3{color:var(--good)}.badge.r2{color:var(--accent)}.badge.r1{color:var(--bad)}
+.left-off{font-style:italic;color:var(--faint);margin-top:6px;font-size:13px}
+.sect-title{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--faint)}
+
+/* ---------- modal ---------- */
+#backdrop{position:fixed;inset:0;background:rgba(4,6,9,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:60}
+#backdrop.on{display:flex;animation:fade .25s ease}
+#modalBox{background:var(--panel-solid);border:1px solid var(--line);border-radius:20px;padding:30px 34px;display:flex;flex-direction:column;gap:16px;align-items:center;max-width:440px;width:min(92vw,440px);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+#modalBox h2{font-size:19px;font-weight:600;text-align:center}
+#modalBox .choices{display:flex;flex-direction:column;gap:9px;width:100%}
+#modalBox .choices .btn{justify-content:center;width:100%}
+.modal-sub{font-size:13px;color:var(--dim);text-align:center;line-height:1.5}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;font-size:13.5px;color:var(--dim)}
+.set-row input[type=number]{width:64px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:8px;padding:6px 8px;text-align:center;color:var(--ink);outline:none}
+.tog{border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12px;color:var(--faint);transition:.15s}
+.tog.on{color:var(--good);border-color:rgba(143,227,176,.4)}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-8px);background:#141a24;border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 20px;font-size:13.5px;opacity:0;pointer-events:none;transition:.3s;z-index:80;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#toast.on{opacity:1;transform:translateX(-50%)}
+
+/* ---------- music player ---------- */
+#player{position:fixed;bottom:18px;right:18px;z-index:50;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+#playerPill{display:flex;align-items:center;gap:9px;background:rgba(13,17,23,.88);border:1px solid var(--line);border-radius:999px;padding:8px 14px 8px 12px;backdrop-filter:blur(10px);box-shadow:0 14px 40px rgba(0,0,0,.5);max-width:min(46vw,380px)}
+#pillLabel{font-size:12.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+#pillLabel.playing{color:var(--accent)}
+.pbtn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:1px solid var(--line);flex:none;transition:.15s}
+.pbtn:hover{border-color:rgba(255,255,255,.3)}
+.pbtn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#playerPanel{display:none;width:330px;background:rgba(13,17,23,.94);border:1px solid var(--line);border-radius:18px;padding:16px;backdrop-filter:blur(14px);box-shadow:0 24px 60px rgba(0,0,0,.6)}
+#playerPanel.on{display:block;animation:fade .2s ease}
+.tabs{display:flex;gap:5px;background:rgba(255,255,255,.05);border-radius:10px;padding:3px;margin-bottom:12px}
+.tab{flex:1;text-align:center;font-size:11.5px;padding:6px 4px;border-radius:8px;color:var(--dim);letter-spacing:.3px}
+.tab.on{background:rgba(255,255,255,.09);color:var(--ink)}
+.pane{display:none}
+.pane.on{display:block}
+.snd{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.sn{border:1px solid var(--line);border-radius:10px;padding:7px 11px;font-size:12px;color:var(--dim);transition:.15s}
+.sn:hover{color:var(--ink)}
+.sn.on{border-color:var(--accent);color:var(--accent)}
+.mo-note{font-size:10.5px;color:var(--faint);line-height:1.55}
+.yt-list{display:flex;flex-direction:column;gap:5px;margin-bottom:9px}
+.yt-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--dim);text-align:left;width:100%;transition:.15s}
+.yt-item:hover{color:var(--ink);border-color:rgba(255,255,255,.25)}
+.yt-item .te{flex:none;color:var(--faint);font-size:10px}
+#ytUrl{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:12.5px;outline:none;color:var(--ink);width:100%;margin-bottom:9px}
+#ytUrl:focus{border-color:rgba(255,201,120,.4)}
+#ytWrap{border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--line)}
+#ytFrame{width:100%;aspect-ratio:16/9;border:0;display:block}
+#pickedList{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;margin-top:9px}
+.picked{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);padding:6px 9px;border-radius:8px;cursor:pointer;border:1px solid transparent;text-align:left;width:100%}
+.picked:hover{color:var(--ink);background:rgba(255,255,255,.04)}
+.picked.now{color:var(--accent);border-color:rgba(255,201,120,.3)}
+.volume-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+input[type=range]{flex:1;accent-color:var(--accent);height:4px}
+
+/* ---------- video room ---------- */
+#scr-yt{overflow:hidden}
+.yt-grid{flex:1;display:flex;gap:26px;min-height:0;padding:84px 38px 26px}
+.yt-left{width:420px;flex:none;display:flex;flex-direction:column;gap:9px;min-height:0}
+.yt-right{flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:0;min-height:0}
+.yt-searchrow{display:flex;gap:8px}
+#inYtQuery{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13.5px;outline:none;color:var(--ink)}
+#inYtQuery:focus{border-color:rgba(255,201,120,.45)}
+#ytStatus{min-height:16px;font-size:11.5px;color:var(--faint);line-height:1.5}
+.ytres{flex:1;min-height:80px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:2px 3px}
+.ytres::-webkit-scrollbar{width:8px}
+.ytres::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
+.ytr{display:flex;align-items:center;gap:10px;padding:7px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02);text-align:left;transition:.15s;width:100%}
+.ytr:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.05)}
+.ytr img{width:104px;height:58px;object-fit:cover;border-radius:7px;flex:none;background:#000}
+.ytr .meta{flex:1;min-width:0}
+.ytr .meta b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;font-weight:600;line-height:1.35;color:var(--ink)}
+.ytr .meta i{display:block;font-size:10.5px;color:var(--faint);font-style:normal;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ytr .star{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);font-size:12px;color:var(--faint);transition:.15s}
+.ytr .star:hover{color:var(--accent);border-color:rgba(255,201,120,.5)}
+.ytr .star.on{color:var(--accent);border-color:rgba(255,201,120,.6);background:rgba(255,201,120,.08)}
+.ytr-fail{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:8px 2px}
+.yt-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;width:100%}
+#ytWrap{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:0 30px 90px rgba(0,0,0,.55);width:min(100%,calc((100vh - 270px)*1.7778))}
+#ytIdle{display:flex;flex-direction:column;align-items:center;gap:13px;color:var(--faint);font-size:13px;text-align:center;max-width:340px}
+.yt-nowbar{display:flex;align-items:center;gap:12px;width:min(100%,calc((100vh - 270px)*1.7778))}
+#ytNowTitle{flex:1;font-size:13.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.pane-now{display:flex;align-items:center;gap:8px;border:1px solid rgba(255,201,120,.35);border-radius:10px;padding:7px 10px;margin-bottom:9px;min-width:0}
+#paneYtNowLbl{flex:1;font-size:11.5px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+
+/* ---------- video room tabs & channel/playlist viewer ---------- */
+.yt-modes{display:flex;gap:6px;margin:8px 0 10px;flex-wrap:wrap}
+.yt-modes .tab-btn{padding:5px 12px;font-size:11.5px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--faint);cursor:pointer;transition:.15s}
+.yt-modes .tab-btn:hover{color:var(--ink);border-color:rgba(255,255,255,.25)}
+.yt-modes .tab-btn.on{color:var(--accent);border-color:rgba(255,201,120,.5);background:rgba(255,201,120,.08)}
+.yt-view{display:none;flex:1;min-height:0;flex-direction:column}
+.yt-view.on{display:flex}
+.pl-card{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02);text-align:left;transition:.15s;width:100%;cursor:pointer}
+.pl-card:hover{border-color:rgba(255,201,120,.45);background:rgba(255,201,120,.04)}
+.pl-card .pl-ic{font-size:18px;color:var(--accent);flex:none;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(255,201,120,.08);border-radius:8px}
+.pl-card .pl-meta{flex:1;min-width:0}
+.pl-card .pl-meta b{display:block;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-card .pl-meta i{display:block;font-size:10.5px;color:var(--faint);font-style:normal;margin-top:2px}
+.ch-badge{display:inline-block;padding:2px 7px;font-size:10.5px;border-radius:99px;background:rgba(255,201,120,.12);color:var(--accent);margin-right:6px}
+.ytr.now-playing{border-color:rgba(255,201,120,.6);background:rgba(255,201,120,.06)}
+
+/* ---------- apps (work windows) ---------- */
+#scr-apps{overflow-y:auto}
+.apps-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:16px;padding:96px 30px 40px}
+.apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;max-width:760px;width:100%}
+.app-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;border:1px solid var(--line);border-radius:16px;padding:20px 10px 13px;background:var(--panel);transition:.15s;cursor:pointer}
+.app-tile:hover{border-color:rgba(255,255,255,.28);transform:translateY(-1px)}
+.app-tile .ic{font-size:30px}
+.app-tile .nm{font-size:13.5px;font-weight:600;color:var(--ink)}
+.app-tile .mode{font-size:10px;letter-spacing:.5px;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2.5px 9px;cursor:pointer}
+.app-tile .mode.win{color:var(--air);border-color:rgba(158,216,255,.3)}
+.app-tile .mode.emb{color:var(--good);border-color:rgba(143,227,176,.3)}
+.app-tile .rm{position:absolute;top:6px;right:9px;color:var(--faint);font-size:11px;opacity:0;transition:.15s;cursor:pointer}
+.app-tile:hover .rm{opacity:1}
+.app-tile .rm:hover{color:var(--bad)}
+.apps-add{display:flex;gap:8px;max-width:760px;width:100%}
+.apps-add input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 13px;font-size:13px;outline:none;color:var(--ink);min-width:0}
+.apps-add input:focus{border-color:rgba(255,201,120,.4)}
+.apps-note{max-width:640px;text-align:center;line-height:1.6}
+
+/* ---------- embedded app frame ---------- */
+#scr-app{overflow:hidden}
+.app-frame{flex:1;display:flex;align-items:center;justify-content:center;padding:0 38px;min-height:0}
+#appFrameBox{width:100%;height:100%;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+#appFrameBox iframe{width:100%;height:100%;border:0;display:block}
+.app-tip{padding:10px 38px 14px;text-align:center}
+
+/* ---------- lesson notes overlay ---------- */
+#scr-notes{overflow-y:auto}
+.notes-wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:84px 30px 40px;max-width:860px;width:100%;margin:0 auto}
+.notes-header{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+#taLessonNotes{width:100%;flex:1;min-height:62vh;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;font-size:14px;line-height:1.7;color:var(--ink);outline:none;resize:vertical;font-family:inherit}
+#taLessonNotes:focus{border-color:rgba(255,201,120,.4)}
+#localServerBanner{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99;background:rgba(18,24,40,.96);border:1px solid rgba(255,201,120,.45);border-radius:999px;padding:6px 14px;box-shadow:0 8px 32px rgba(0,0,0,.6);font-size:12px;color:var(--ink);display:none;align-items:center;gap:10px;backdrop-filter:blur(10px)}
+
+/* ---------- session-time overlays (video room / apps / embedded app) ----------
+   unlike .screen they do NOT change the phase machine: opening one during a gate
+   or focus block leaves the timers ticking underneath, Esc just peels it off   */
+.overlay{position:fixed;inset:0;z-index:55;display:none;flex-direction:column;overflow:hidden;
+  background:radial-gradient(1200px 800px at 50% -10%, #0d1220 0%, var(--bg) 60%)}
+.overlay.on{display:flex;animation:fade .4s ease}
+
+@media (max-width:980px){
+  .yt-grid{flex-direction:column;overflow-y:auto;gap:16px;padding:78px 20px 20px}
+  .yt-left,.yt-right{flex:none;width:100%}
+  .ytres{flex:none;max-height:34vh}
+}
+</style>
+</head>
+<body>
+
+<div id="localServerBanner">
+  <span>⚡ Local Workspace Server active</span>
+  <button class="ghost" id="btnSwitchServer" style="padding:3px 10px;font-size:11.5px;color:var(--accent);border-color:rgba(255,201,120,.4)">Switch to Local Server (enables in-page YouTube) ▶</button>
+  <button id="btnCloseBanner" style="background:none;border:none;color:var(--faint);cursor:pointer;font-size:13px;padding:0 4px" title="Dismiss">✕</button>
+</div>
+
+<!-- ============ HOME ============ -->
+<section class="screen" id="scr-home">
+  <div class="topbar">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="16" r="5" fill="var(--accent)"/><circle cx="16" cy="16" r="12" fill="none" stroke="var(--accent)" stroke-opacity=".3"/></svg>
+      Focus Gate
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="ghost" id="btnStats">Journal</button>
+      <button class="ghost" id="btnApps">Apps</button>
+      <button class="ghost" id="btnNotesHome">Notes</button>
+      <button class="ghost" id="btnSettings">Settings</button>
+    </div>
+  </div>
+  <div class="center">
+    <div class="gate-note dim">anything starts with <b style="color:var(--accent);font-weight:700">10 minutes</b></div>
+    <div class="subject-row">
+      <input id="inSubject" placeholder="What are we focusing on?" autocomplete="off" spellcheck="false">
+      <input id="inIntention" placeholder="one line — what does done look like?  (optional)" autocomplete="off" maxlength="140">
+      <div id="chips"></div>
+      <div id="warmHint"></div>
+    </div>
+    <button class="btn primary big" id="btnStart">Start session ↓</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div class="gate-note faint">ritual → 10-min gate → then you choose</div>
+      <div class="glance" id="glance"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE POINT ============ -->
+<section class="screen" id="scr-point">
+  <div class="topbar">
+    <div class="ritual-title">the ritual · 1 / 2</div>
+    <div style="display:flex;gap:8px">
+      <button class="ghost" id="btnAbortR1" title="Drop the session">✕</button>
+      <button class="ghost" id="btnSkipRitual1">Skip the ritual →</button>
+    </div>
+  </div>
+  <div id="pointStage">
+    <svg id="pointRing" width="170" height="170" viewBox="0 0 170 170"><circle cx="85" cy="85" r="72" stroke="rgba(255,255,255,.07)"/><circle id="pointRingFg" cx="85" cy="85" r="72" stroke="var(--accent)" stroke-dasharray="452.4" stroke-dashoffset="452.4"/></svg>
+    <div id="theDot"></div>
+    <div id="pointHint">Just look at the point. When thoughts come, come back to it.</div>
+  </div>
+</section>
+
+<!-- ============ ONE BREATH ============ -->
+<section class="screen" id="scr-breath">
+  <div class="topbar">
+    <div class="ritual-title">the ritual · 2 / 2</div>
+    <div style="display:flex;gap:8px">
+      <button class="ghost" id="btnAbortR2" title="Drop the session">✕</button>
+      <button class="ghost" id="btnSkipRitual2">Start now →</button>
+    </div>
+  </div>
+  <div id="breathStage">
+    <div id="breathCircle"></div>
+    <div id="breathLabel">Get comfortable…</div>
+    <div id="breathCount"></div>
+  </div>
+</section>
+
+<!-- ============ BLOCK ============ -->
+<section class="screen" id="scr-block">
+  <div class="topbar">
+    <div class="subject-line" id="blockSubject"></div>
+    <div style="display:flex;gap:8px">
+      <button class="ghost" id="btnVideoBlock" title="Video room — pick a lesson video, the timer keeps running">▶ Video</button>
+      <button class="ghost" id="btnAppsBlock" title="Work apps — ChatGPT, Desmos, Gmail… the timer keeps running">⚡ Apps</button>
+      <button class="ghost" id="btnNotesBlock" title="Lesson scratchpad — write notes or paste exercise steps">📝 Notes</button>
+      <button class="ghost" id="btnFull">Fullscreen</button>
+      <button class="ghost" id="btnPause">Pause</button>
+      <button class="ghost" id="btnEndBlock">End now ✕</button>
+    </div>
+  </div>
+  <div class="center">
+    <div class="stage-tag" id="blockTag"></div>
+    <div class="timer-wrap">
+      <svg class="ring-outer" width="340" height="340" viewBox="0 0 340 340"><circle cx="170" cy="170" r="158" stroke="rgba(255,255,255,.06)"/><circle id="blockRingFg" cx="170" cy="170" r="158" stroke="var(--accent)" stroke-dasharray="992.7" stroke-dashoffset="992.7"/></svg>
+      <div class="timer" id="blockTimer">10:00</div>
+      <div class="paused-badge" id="pausedBadge"><span class="pbig">P A U S E D</span><span class="tiny dim">space to resume</span></div>
+    </div>
+    <div class="block-note dim" id="blockNote"></div>
+  </div>
+</section>
+
+<!-- ============ BREAK ============ -->
+<section class="screen" id="scr-break">
+  <div class="topbar"><div class="stage-tag">break</div><div style="display:flex;gap:8px"><button class="ghost" id="btnVideoBreak" title="Watch a video during the break">▶ Video</button><button class="ghost" id="btnAppsBreak" title="Check mail / chat / calendar — music keeps playing">⚡ Apps</button><button class="ghost" id="btnNotesBreak" title="Review lesson notes">📝 Notes</button><button class="ghost" id="btnSkipBreak">Skip break →</button></div></div>
+  <div class="center">
+    <div class="stage-tag">rest your eyes</div>
+    <div class="timer" id="breakTimer">05:00</div>
+    <div class="block-note dim">Look at something far away. Water. Long, slow exhales.</div>
+  </div>
+</section>
+
+<!-- ============ WRAP ============ -->
+<section class="screen" id="scr-wrap">
+  <div class="topbar"><div class="ritual-title">session complete</div></div>
+  <div class="center">
+    <div class="summary" id="wrapSummary"></div>
+    <div class="tiny dim" style="letter-spacing:1px">HOW DID IT GO?</div>
+    <div class="ratings">
+      <button class="rate" data-r="3"><span class="em">✦</span>great</button>
+      <button class="rate" data-r="2"><span class="em">✧</span>ok</button>
+      <button class="rate" data-r="1"><span class="em">·</span>fought it</button>
+    </div>
+    <div class="tiny dim" style="letter-spacing:1px;margin-top:4px">LEAVE A THREAD</div>
+    <textarea id="taLeftOff" placeholder="Where did you leave off, and what's the first step next time?&#10;(A left thread makes the next session start warm.)"></textarea>
+    <button class="btn primary" id="btnSaveWrap">Save session</button>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="screen" id="scr-stats">
+  <div class="topbar">
+    <button class="ghost" id="btnBackHome">← Home</button>
+    <div style="display:flex;gap:8px">
+      <button class="ghost" id="btnExportJson">Export .json</button>
+      <button class="ghost" id="btnExportCsv">Export .csv</button>
+      <button class="ghost" id="btnClearData" style="color:var(--bad)">Clear all</button>
+    </div>
+  </div>
+  <div class="stats-wrap">
+    <div class="stat-cards">
+      <div class="card"><div class="lbl">today</div><div class="num" id="stToday">0<small> min</small></div></div>
+      <div class="card"><div class="lbl">streak</div><div class="num" id="stStreak">0<small> days</small></div></div>
+      <div class="card"><div class="lbl">all time</div><div class="num" id="stTotal">0<small> min</small></div></div>
+      <div class="card"><div class="lbl">sessions</div><div class="num" id="stCount">0</div></div>
+    </div>
+    <div class="sect-title">by subject</div>
+    <table><thead><tr><th style="width:46%">subject</th><th>time</th><th class="r">sessions</th><th class="r">last</th></tr></thead><tbody id="tblBody"></tbody></table>
+    <div class="sect-title">sessions</div>
+    <div id="sesList" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+</section>
+
+<!-- ============ VIDEO ROOM ============ -->
+<section class="overlay" id="scr-yt">
+  <div class="topbar">
+    <button class="ghost" id="btnYtBack">← Back</button>
+    <div class="ritual-title">video room</div>
+    <div style="display:flex;gap:8px">
+      <button class="ghost" id="btnYtWindow" title="Search on youtube.com in its own window instead">⧉ YouTube</button>
+      <button class="ghost" id="btnYtStop" title="Stop playing">■</button>
+    </div>
+  </div>
+  <div class="yt-grid">
+    <div class="yt-left">
+      <div class="yt-searchrow">
+        <input id="inYtQuery" placeholder="Search videos, channels, or paste link" autocomplete="off" spellcheck="false">
+        <button class="ghost" id="btnYtSearch" title="Search">→</button>
+      </div>
+      <div id="ytStatus"></div>
+
+      <!-- Video room view tabs -->
+      <div class="yt-modes">
+        <button class="tab-btn on" id="tabYtSearch" title="Search results">🔎 Search</button>
+        <button class="tab-btn" id="tabYtPlaylist" title="Current playlist chapters" style="display:none">📑 Chapters</button>
+        <button class="tab-btn" id="tabYtChannel" title="Channel courses & videos" style="display:none">📺 Channel</button>
+        <button class="tab-btn" id="tabYtSaved" title="Your saved library">★ Saved</button>
+        <button class="tab-btn" id="tabYtStarters" title="Curated starter streams">✦ Starters</button>
+      </div>
+
+      <!-- View: Search results -->
+      <div id="viewYtSearch" class="yt-view on">
+        <div class="ytres" id="ytResults"></div>
+      </div>
+
+      <!-- View: Playlist chapters -->
+      <div id="viewYtPlaylist" class="yt-view">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 2px 8px;gap:8px">
+          <b id="ytPlTitle" style="font-size:12.5px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Playlist Chapters</b>
+          <button class="ghost" id="btnPlPlayAll" style="font-size:11px;padding:3px 8px;flex:none">▶ Play all</button>
+        </div>
+        <div class="ytres" id="ytPlaylistVideos"></div>
+      </div>
+
+      <!-- View: Channel -->
+      <div id="viewYtChannel" class="yt-view">
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 2px 10px">
+          <img id="ytChThumb" style="width:38px;height:38px;border-radius:50%;object-fit:cover;background:#000" src="" alt="">
+          <div style="flex:1;min-width:0">
+            <b id="ytChTitle" style="display:block;font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Channel</b>
+            <span id="ytChMeta" class="tiny faint"></span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <button class="tab-btn on" id="btnChPlaylists">Course Playlists</button>
+          <button class="tab-btn" id="btnChVideos">All Videos</button>
+        </div>
+        <div class="ytres" id="ytChannelItems"></div>
+      </div>
+
+      <!-- View: Saved videos -->
+      <div id="viewYtSaved" class="yt-view">
+        <div class="ytres" id="ytSaved"></div>
+      </div>
+
+      <!-- View: Starters -->
+      <div id="viewYtStarters" class="yt-view">
+        <div class="ytres" id="ytStarters"></div>
+      </div>
+    </div>
+    <div class="yt-right">
+      <div class="yt-stage">
+        <div id="ytWrap" style="display:none"><iframe id="ytFrame" allow="autoplay; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation" title="YouTube player"></iframe></div>
+        <div id="ytIdle">
+          <svg width="54" height="54" viewBox="0 0 32 32"><circle cx="16" cy="16" r="5" fill="var(--accent)" opacity=".7"/><circle cx="16" cy="16" r="12" fill="none" stroke="var(--accent)" stroke-opacity=".25"/></svg>
+          <div>Search on the left, tap a video — it plays inside this page.</div>
+          <div class="tiny" style="opacity:.75">Long mixes, ambience, no rabbit hole. When a video plays, audio keeps going even if you close this room.</div>
+        </div>
+      </div>
+      <div class="yt-nowbar" id="ytNowBar" style="display:none">
+        <button class="ghost" id="btnYtPrev" title="Previous chapter/video">⏮</button>
+        <span id="ytNowTitle"></span>
+        <button class="ghost" id="btnYtNext" title="Next chapter/video">⏭</button>
+        <button class="ghost" id="btnYtChannelNow" title="View channel courses & playlists" style="display:none">📺 Channel</button>
+        <button class="ghost" id="btnYtWinNow" title="This video refuses to play inside local pages (YouTube's 2025 referrer rule)? Open it in a small window instead — you stay in the workspace">⧉ Window</button>
+        <button class="ghost" id="btnYtSaveNow" title="Keep it in your videos">⋆ Save</button>
+      </div>
+      <div class="mo-note" id="ytNotice" style="text-align:center">Search results come from YouTube's own web endpoint — no sign-in, no key. When running with <b>Start Focus Gate.bat</b>, videos play natively inside this page. The volume wheel in the pill controls generated sounds; the video has its own.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APPS (work windows) ============ -->
+<section class="overlay" id="scr-apps">
+  <div class="topbar">
+    <button class="ghost" id="btnAppsBack">← Back</button>
+    <div class="ritual-title">work · quick access</div>
+    <div style="width:64px"></div>
+  </div>
+  <div class="apps-wrap">
+    <div class="apps-grid" id="appsGrid"></div>
+    <div class="apps-add">
+      <input id="inAppName" placeholder="name — e.g. Perplexity" autocomplete="off" maxlength="24">
+      <input id="inAppUrl" placeholder="https://… (site link)" autocomplete="off" spellcheck="false">
+      <button class="ghost" id="btnAddApp">+ Add</button>
+    </div>
+    <div class="mo-note apps-note">Opening a tile gives the app its <b>own window</b> beside this page — your logins live in the browser, the focus page keeps running underneath (timer + music stay on). Use the little tag under each name to force <b>try embedded</b> for sites that could allow it. Everything else you add works the same way.</div>
+    <button class="ghost" id="btnAppsReset" style="font-size:11.5px">restore starter apps</button>
+  </div>
+</section>
+
+<!-- ============ EMBEDDED APP ============ -->
+<section class="overlay" id="scr-app">
+  <div class="topbar">
+    <button class="ghost" id="btnAppBack">← Back</button>
+    <div class="subject-line" id="appTitleName"></div>
+    <div style="display:flex;gap:8px">
+      <button class="ghost" id="btnAppWin" title="Open this site in its own window instead">⧉ Own window</button>
+      <button class="ghost" id="btnAppClose" title="Close">✕</button>
+    </div>
+  </div>
+  <div class="app-frame"><div id="appFrameBox"><iframe id="appFrame" referrerpolicy="no-referrer-when-downgrade" title="App"></iframe></div></div>
+  <div class="tiny faint app-tip">Blank frame or a refusal message → the site forbids embedding (Gmail, ChatGPT, X, LinkedIn and most big apps do). Use “⧉ Own window” — <b>Esc</b> brings you back here.</div>
+</section>
+
+<!-- ============ LESSON NOTES / SCRATCHPAD ============ -->
+<section class="overlay" id="scr-notes">
+  <div class="topbar">
+    <button class="ghost" id="btnNotesBack">← Back</button>
+    <div class="ritual-title" id="notesTitle">Lesson Notes</div>
+    <div style="display:flex;gap:8px">
+      <button class="ghost" id="btnNotesCopy" title="Copy notes to clipboard">Copy</button>
+      <button class="ghost" id="btnNotesClear" title="Clear notes for this subject">Clear</button>
+    </div>
+  </div>
+  <div class="notes-wrap">
+    <div class="notes-header">
+      <span class="dim tiny">Auto-saved for this subject · Paste ChatGPT explanations, exercise solutions, or formulas</span>
+    </div>
+    <textarea id="taLessonNotes" placeholder="Jot down notes, exercise problems, formulas, or ChatGPT answers here...&#10;&#10;Auto-saved specifically for this subject."></textarea>
+  </div>
+</section>
+<div id="backdrop"><div id="modalBox"></div></div>
+<div id="toast"></div>
+
+<!-- ============ MUSIC PLAYER ============ -->
+<div id="player">
+  <div id="playerPanel">
+    <div class="tabs">
+      <button class="tab on" data-ptab="snd">Sounds</button>
+      <button class="tab" data-ptab="yt">YouTube</button>
+      <button class="tab" data-ptab="loc">My music</button>
+    </div>
+    <div class="pane on" id="pane-snd">
+      <div class="snd">
+        <button class="sn" data-snd="space">✦ Deep Space</button>
+        <button class="sn" data-snd="brown">Brown Noise</button>
+        <button class="sn" data-snd="pink">Pink Rain</button>
+        <button class="sn" data-snd="gamma">40 Hz Gamma 🎧</button>
+        <button class="sn" data-snd="beta">16 Hz Beta 🎧</button>
+        <button class="sn" data-snd="alpha">10 Hz Alpha 🎧</button>
+      </div>
+      <div class="mo-note">Generated live inside the browser — nothing to download, works offline. 🎧 = headphones needed (each ear receives a different tone).</div>
+    </div>
+    <div class="pane" id="pane-yt">
+      <div class="pane-now" id="paneYtNow" style="display:none">
+        <span id="paneYtNowLbl"></span>
+        <button class="pbtn" id="btnPaneYtShow" title="Show the video room">⤢</button>
+        <button class="pbtn" id="btnPaneYtStop" title="Stop">■</button>
+      </div>
+      <div class="yt-list" id="ytRepo"></div>
+      <button class="ghost" id="btnYtRoom" style="justify-content:center;width:100%;margin-bottom:9px">🔎 Search &amp; watch videos</button>
+      <input id="ytUrl" placeholder="paste any YouTube link…">
+      <div class="mo-note" style="margin-top:9px">Search &amp; play stay inside this page — no browser tab, no rabbit hole. <b>Esc</b> hides the video room; audio keeps playing. Saved videos replay with one tap. Needs internet.</div>
+    </div>
+    <div class="pane" id="pane-loc">
+      <div class="mo-note">Download MP3s into the <b>music</b> folder next to this file (instructions in README.md), or simply pick any folder of audio from your PC:</div>
+      <button class="ghost" id="btnPickFolder" style="justify-content:center;margin-top:9px">Pick my music folder</button>
+      <div id="pickedList"></div>
+    </div>
+    <div class="volume-row"><span class="tiny faint">VOL</span><input type="range" id="pVol" min="0" max="100" value="70"></div>
+    <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+  </div>
+  <div id="playerPill">
+    <button class="pbtn" id="pillToggle" title="Quick play / stop">♪</button>
+    <div id="pillLabel" title="Open the player">Focus music</div>
+    <button class="pbtn" id="pillStop" title="Stop">■</button>
+    <button class="pbtn" id="pillPanel" title="Open player">▲</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Focus Gate — single-file local app. All data lives in localStorage.
+   ===================================================================== */
+const LS='focusgate.v1';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAY=86400000;
+const RING_C=992.7;      /* 2π×158 */
+const POINT_C=452.4;     /* 2π×72 */
+const PH={HOME:'home',POINT:'point',BREATH:'breath',BLOCK:'block',BREAK:'break',WRAP:'wrap',STATS:'stats',YT:'yt',APPS:'apps',APPFRAME:'appframe',NOTES:'notes'};
+const SCREENS={home:'scr-home',point:'scr-point',breath:'scr-breath',block:'scr-block',break:'scr-break',wrap:'scr-wrap',stats:'scr-stats',yt:'scr-yt',apps:'scr-apps',appframe:'scr-app',notes:'scr-notes'};
+
+/* starter work-apps: these sites all refuse to be embedded (X-Frame-Options), so they
+   open as real "work windows" beside Focus Gate — your logins live in the browser profile.
+   Friendly tools (like Desmos and Excalidraw) can try to open directly inside the page. */
+const DEFAULT_APPS=[
+  {id:'gpt', name:'ChatGPT', url:'https://chatgpt.com', mode:'auto'},
+  {id:'dsk', name:'DeepSeek',url:'https://chat.deepseek.com', mode:'auto'},
+  {id:'cla', name:'Claude',  url:'https://claude.ai', mode:'auto'},
+  {id:'des', name:'Desmos Calculator', url:'https://www.desmos.com/calculator', mode:'embed'},
+  {id:'exb', name:'Excalidraw Board', url:'https://excalidraw.com', mode:'embed'},
+  {id:'gm',  name:'Gmail',   url:'https://mail.google.com', mode:'auto'},
+  {id:'not', name:'Notion',  url:'https://notion.so', mode:'auto'},
+  {id:'cal', name:'Calendar',url:'https://calendar.google.com', mode:'auto'},
+  {id:'wa',  name:'WhatsApp',url:'https://web.whatsapp.com', mode:'auto'}
+];
+const DEFAULTS={
+  settings:{gateMinutes:10,breakMinutes:5,pointSeconds:75,breathSeconds:60,chime:true,notifications:true,autoFullscreen:true,masterVolume:70,ytBridge:''},
+  subjects:[],sessions:[],leftOff:{},savedYt:'',ytSaved:[],apps:DEFAULT_APPS,notes:{}
+};
+function deep(o){return JSON.parse(JSON.stringify(o))}
+function load(){
+  try{
+    const j=JSON.parse(localStorage.getItem(LS));
+    if(j&&Array.isArray(j.sessions)){
+      const res={...deep(DEFAULTS),...j,settings:{...DEFAULTS.settings,...(j.settings||{})}};
+      if(!res.notes)res.notes={};
+      return res;
+    }
+  }catch(e){}
+  return deep(DEFAULTS);
+}
+let data=load();
+/* migrate the old single pasted link into the new saved-videos library */
+if(data.savedYt&&!data.ytSaved.length){
+  const p=parseYt(data.savedYt);
+  if(p)data.ytSaved=[{id:p.v||null,list:p.v?null:p.list,t:'My pasted link',ch:'',when:Date.now()}];
+  save();
+}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(data))}catch(e){}};
+
+/* ---------------- runtime ---------------- */
+const RT={
+  phase:PH.HOME, ses:null, block:null,
+  paused:false, pausedRemaining:0, blockDone:false, breakDone:false,
+  breakEnd:0, breakTotal:0,
+  pointStart:0, pointTotal:0,
+  breathStart:0, breathTotal:0,
+  ratingSel:0, modalKind:null, lastBeat:null,
+  ovl:null, frameApp:null
+};
+let pickedFiles=[];
+
+/* ---------------- tiny ui ---------------- */
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(toast._h);toast._h=setTimeout(()=>t.classList.remove('on'),2600)}
+function two(n){return String(n).padStart(2,'0')}
+function fmtMin(sec){const m=Math.round(sec/60);return m<1?'<1':String(m)}
+function fmtClock(msms){let s=Math.max(0,Math.ceil(msms/1000));const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60);const ss=s%60;return h?h+':'+two(m)+':'+two(ss):two(m)+':'+two(ss)}
+function fmtWhen(ts){const d=new Date(ts);return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+function dayKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+two(d.getMonth()+1)+'-'+two(d.getDate())}
+
+function setPhase(p){
+  RT.phase=p;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $(SCREENS[p]).classList.add('on');
+}
+function closeModal(){$('backdrop').classList.remove('on');RT.modalKind=null}
+
+/* =====================================================================
+   AUDIO — WebAudio built-ins + local files + YouTube + chime
+   ===================================================================== */
+const Music={
+  ctx:null,master:null,builtUp:[],audioEl:null,elIdx:-1,curSource:null,
+  unlock(){
+    if(!this.ctx){
+      try{
+        this.ctx=new (window.AudioContext||window.webkitAudioContext)();
+        this.master=this.ctx.createGain();
+        this.master.gain.value=(data.settings.masterVolume/100)*0.9;
+        this.master.connect(this.ctx.destination);
+      }catch(e){return}
+    }
+    if(this.ctx.state==='suspended') this.ctx.resume();
+  },
+  setVol(v){data.settings.masterVolume=v;save();if(this.master)this.master.gain.value=(v/100)*0.9;if(this.audioEl)this.audioEl.volume=Math.min(1,v/100)},
+  stopBuilt(){this.builtUp.forEach(n=>{try{n.stop&&n.stop()}catch(e){};try{n.disconnect&&n.disconnect()}catch(e){}});this.builtUp=[]},
+  stopLocal(){if(this.audioEl){this.audioEl.pause();try{this.audioEl.src=''}catch(e){}}this.elIdx=-1;document.querySelectorAll('.picked').forEach(p=>p.classList.remove('now'))},
+  stopYt(){const f=$('ytFrame');if(f&&f.getAttribute('src'))f.removeAttribute('src');
+    const w=$('ytWrap');if(w)w.style.display='none';videoNow(null)},
+  stopAll(){this.stopBuilt();this.stopLocal();this.stopYt();this.curSource=null;setPlayingUi(false)},
+  labelPill(text){setPlayingUi(true,text)},
+
+  /* --- seamless noise buffers (10 s loop, 2 s crossfade) --- */
+  noiseBuffer(kind){
+    const sr=this.ctx.sampleRate,len=Math.floor(sr*12),loopLen=Math.floor(sr*10),xf=Math.floor(sr*2);
+    const buf=this.ctx.createBuffer(1,len,sr),d=buf.getChannelData(0);
+    if(kind==='brown'){
+      let last=0;
+      for(let i=0;i<len;i++){const w=Math.random()*2-1;last=(last+0.02*w)/1.02;const v=last*3.5;d[i]=v<-1?-1:v>1?1:v}
+    }else{
+      const b=[0,0,0,0,0,0,0];
+      for(let i=0;i<len;i++){
+        const w=Math.random()*2-1;
+        b[0]=0.99886*b[0]+w*0.0555179;b[1]=0.99332*b[1]+w*0.0750759;b[2]=0.96900*b[2]+w*0.1538520;
+        b[3]=0.86650*b[3]+w*0.3104856;b[4]=0.55000*b[4]+w*0.5329522;b[5]=-0.7616*b[5]-w*0.0168980;
+        d[i]=(b[0]+b[1]+b[2]+b[3]+b[4]+b[5]+b[6]+w*0.5362)*0.11;b[6]=w*0.115926;
+      }
+    }
+    for(let i=0;i<xf;i++){
+      const f=i/xf,dHead=d[i],dTail=d[loopLen+i];
+      d[i]=dHead*f+dTail*(1-f);   /* at seam: d[loopLen-1] → d[loopLen] stays continuous */
+    }
+    const out=this.ctx.createBuffer(1,loopLen,sr);
+    out.getChannelData(0).set(d.subarray(0,loopLen));
+    return out;
+  },
+  playNoise(kind){
+    this.unlock(); if(!this.ctx)return; this.stopAll();
+    const src=this.ctx.createBufferSource();src.buffer=this.noiseBuffer(kind);src.loop=true;
+    const lp=this.ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=kind==='brown'?2400:7500;
+    const g=this.ctx.createGain();g.gain.value=kind==='brown'?0.75:0.6;
+    src.connect(lp);lp.connect(g);g.connect(this.master);src.start();
+    this.builtUp=[src,lp,g];this.curSource=kind;
+    this.labelPill(kind==='brown'?'Brown Noise':'Pink Rain');
+  },
+
+  /* --- deep space drone (Interstellar-ish, generated live) --- */
+  playDrone(){
+    this.unlock(); if(!this.ctx)return; this.stopAll();
+    const c=this.ctx,t=c.currentTime,keep=[],out=c.createGain();
+    out.gain.setValueAtTime(0,t);out.gain.linearRampToValueAtTime(0.5,t+2.5);out.connect(this.master);keep.push(out);
+    const mk=(type,freq,gain,filt)=>{
+      const o=c.createOscillator();o.type=type;o.frequency.value=freq;
+      const g=c.createGain();g.gain.value=gain;
+      if(filt){const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=filt.c;lp.Q.value=filt.q||0.7;
+        o.connect(lp);lp.connect(g);keep.push(lp);return{o,g,lp}}
+      o.connect(g);return{o,g};
+    };
+    const sub=mk('sine',46.25,0.32,null);
+    const sawA=mk('sawtooth',92.5,0.15,{c:250,q:.8});
+    const sawB=mk('sawtooth',92.9,0.15,{c:250,q:.8});
+    const fifth=mk('sine',138.75,0.05,null);
+    const shim=mk('triangle',220,0.025,{c:900,q:.6});
+    [sub,sawA,sawB,fifth,shim].forEach(x=>{x.g.connect(out);x.o.start(t);keep.push(x.o);keep.push(x.g)});
+    const lfo=c.createOscillator();lfo.frequency.value=0.03;
+    const lg=c.createGain();lg.gain.value=110;lfo.connect(lg);
+    lg.connect(sawA.lp.frequency);lg.connect(sawB.lp.frequency);lfo.start(t);keep.push(lfo);keep.push(lg);
+    const trem=c.createOscillator();trem.frequency.value=0.05;
+    const tg=c.createGain();tg.gain.value=0.025;trem.connect(tg);tg.connect(fifth.g.gain);trem.start(t);keep.push(trem);keep.push(tg);
+    const shof=c.createOscillator();shof.frequency.value=0.02;
+    const sg=c.createGain();sg.gain.value=400;shof.connect(sg);sg.connect(shim.lp.frequency);shof.start(t);keep.push(shof);keep.push(sg);
+    this.builtUp=keep;this.curSource='space';
+    this.labelPill('✦ Deep Space');
+  },
+
+  /* --- binaural tones via headphones (gamma 340→380 etc.) --- */
+  playBinaud(key,carr,beat){
+    this.unlock(); if(!this.ctx)return; this.stopAll();
+    const c=this.ctx,t=c.currentTime,keep=[],merger=c.createChannelMerger(2);
+    [carr,carr+beat].forEach(f=>{
+      const o=c.createOscillator();o.type='sine';o.frequency.value=f;
+      const g=c.createGain();g.gain.setValueAtTime(0.001,t);g.gain.linearRampToValueAtTime(0.11,t+2);
+      o.connect(g);g.connect(merger);o.start(t);keep.push(o);keep.push(g);
+    });
+    merger.connect(this.master);keep.push(merger);
+    this.builtUp=keep;this.curSource=key;
+    this.labelPill(beat===40?'40 Hz Gamma 🎧':beat===16?'16 Hz Beta 🎧':'10 Hz Alpha 🎧');
+  },
+
+  /* --- local files --- */
+  playLocal(i){
+    if(!pickedFiles.length)return;
+    this.stopAll();
+    i=((i%pickedFiles.length)+pickedFiles.length)%pickedFiles.length;
+    if(!this.audioEl){
+      this.audioEl=new Audio();
+      this.audioEl.addEventListener('ended',()=>{if(pickedFiles.length)this.playLocal(this.elIdx+1)});
+    }
+    const f=pickedFiles[i];
+    try{this.audioEl.src=URL.createObjectURL(f)}catch(e){return}
+    this.audioEl.volume=Math.min(1,data.settings.masterVolume/100);
+    this.audioEl.play().catch(()=>{});
+    this.elIdx=i;this.curSource='local';
+    document.querySelectorAll('.picked').forEach(p=>p.classList.toggle('now',+p.dataset.i===i));
+    this.labelPill('♪ '+f.name.replace(/\.[^.]+$/,''));
+  },
+
+  /* --- youtube --- */
+  playYt(item){
+    this.stopAll();
+    const f=$('ytFrame');f.src=ytEmbed(item.id,item.list);$('ytWrap').style.display='block';
+    this.curSource='yt';
+    this.labelPill('▶ '+item.t);
+    videoNow(item);
+  },
+  quickToggle(){
+    if(this.curSource){this.stopAll();return}
+    if(pickedFiles.length&&this.elIdx>=0){this.playLocal(this.elIdx);return}
+    this.playDrone();
+  }
+};
+document.addEventListener('pointerdown',()=>Music.unlock(),{once:true});
+
+function setPlayingUi(on,text){
+  $('pillLabel').textContent=text||'Focus music';
+  $('pillLabel').classList.toggle('playing',!!on);
+  document.querySelectorAll('.sn').forEach(b=>b.classList.toggle('on',!!on&&b.dataset.snd===Music.curSource));
+  document.querySelectorAll('.picked').forEach(p=>p.classList.toggle('now',!!on&&Music.curSource==='local'&&+p.dataset.i===Music.elIdx));
+  $('pillStop').classList.toggle('on',!!on);
+  $('pillToggle').classList.toggle('on',!!on);
+}
+
+function chime(){
+  if(!data.settings.chime)return;
+  try{
+    Music.unlock();const c=Music.ctx;if(!c)return;const t=c.currentTime;
+    [523.25,659.25,783.99].forEach((f,i)=>{
+      const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;
+      const st=t+i*0.07;
+      g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(0.13,st+0.03);g.gain.exponentialRampToValueAtTime(0.0001,st+2.4);
+      o.connect(g);g.connect(Music.master);o.start(st);o.stop(st+2.6);
+    });
+  }catch(e){}
+}
+function notify(body){
+  if(!data.settings.notifications)return;
+  try{if(window.Notification&&Notification.permission==='granted')new Notification('Focus Gate',{body})}catch(e){}
+}
+
+/* =====================================================================
+   HOME
+   ===================================================================== */
+function renderHome(){
+  const ch=$('chips');ch.innerHTML='';
+  data.subjects.slice(0,10).forEach(s=>{
+    const b=document.createElement('button');b.className='chip';b.textContent=s;
+    b.onclick=()=>{$('inSubject').value=s;updateWarmHint();$('inSubject').focus()};
+    ch.appendChild(b);
+  });
+  const todaySec=data.sessions.filter(x=>dayKey(x.startedAt)===dayKey(Date.now())).reduce((a,x)=>a+(x.totalFocusSec||0),0);
+  const streak=streakCount();
+  const last=data.sessions.length?data.sessions[data.sessions.length-1].subject:null;
+  $('glance').innerHTML=(todaySec||streak||last)
+    ?'<span><b>'+fmtMin(todaySec)+'</b> min today</span><span>streak <b>'+streak+'</b></span>'+(last?'<span>last · <b>'+esc(last)+'</b></span>':'')
+    :'<span class="faint">your first session starts today</span>';
+}
+function updateWarmHint(){
+  const s=$('inSubject').value.trim();
+  const lo=data.leftOff[s];
+  $('warmHint').textContent=lo?('last time you left off → '+lo.split('\n')[0]):'';
+}
+function streakCount(){
+  const set=new Set(data.sessions.map(x=>dayKey(x.startedAt)));
+  let n=0,cur=dayKey(Date.now());
+  if(!set.has(cur))cur=dayKey(Date.now()-DAY);
+  while(set.has(cur)){
+    n++;
+    const prev=new Date(cur+'T12:00:00');prev.setDate(prev.getDate()-1);
+    cur=dayKey(prev.getTime());
+  }
+  return n;
+}
+
+/* =====================================================================
+   SESSION START
+   ===================================================================== */
+function startSession(){
+  const subject=$('inSubject').value.trim();
+  if(!subject){toast('Type a subject first — anything works: "photosynthesis", "chapter 4", "CV"…');$('inSubject').focus();return}
+  Music.unlock();
+  try{if(data.settings.notifications&&window.Notification&&Notification.permission==='default')Notification.requestPermission()}catch(e){}
+  if(data.settings.autoFullscreen){try{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}}
+  data.subjects=[subject,...data.subjects.filter(s=>s!==subject)].slice(0,12);
+  RT.ses={id:String(Date.now()),subject,intention:$('inIntention').value.trim(),startedAt:Date.now(),blocks:[],rating:0,leftOff:'',ritualSkipped:false};
+  save();
+  if(data.settings.pointSeconds>0)startPoint();
+  else if(data.settings.breathSeconds>0)startBreath();
+  else startBlock('gate',data.settings.gateMinutes);
+}
+function abortSession(){
+  RT.ses=null;RT.block=null;RT.blockDone=true;RT.breakDone=true;
+  renderHome();setPhase(PH.HOME);toast('Session dropped — nothing was saved.');
+}
+
+/* =====================================================================
+   RITUAL 1 — THE POINT (fixed-gaze / trataka-style reset)
+   ===================================================================== */
+function startPoint(){
+  setPhase(PH.POINT);
+  RT.pointStart=Date.now();RT.pointTotal=data.settings.pointSeconds*1000;
+  $('pointHint').style.opacity='1';
+  $('pointRingFg').style.strokeDashoffset=String(POINT_C);
+  setTimeout(()=>{if(RT.phase===PH.POINT)$('pointHint').style.opacity='0.14'},8000);
+  requestAnimationFrame(paint);
+}
+function finishPoint(){startBreath()}
+
+/* =====================================================================
+   RITUAL 2 — ONE BREATH (physiological sigh: 2 inhales + long exhale)
+   ===================================================================== */
+const B_SEQ=[
+  {l:'In…',d:3500,f0:0.52,f1:1},
+  {l:'…and a little more',d:1200,f0:1,f1:1.14},
+  {l:'Looooong out…',d:7000,f0:1.14,f1:0.6},
+  {l:'let it go',d:900,f0:0.6,f1:0.6}
+];
+const B_SEQ_TOTAL=B_SEQ.reduce((a,b)=>a+b.d,0);
+function startBreath(){
+  setPhase(PH.BREATH);
+  RT.breathStart=Date.now();RT.breathTotal=data.settings.breathSeconds*1000;
+  requestAnimationFrame(paint);
+}
+function breathTick(now){
+  const t=now-RT.breathStart;
+  if(t>=RT.breathTotal){
+    $('breathCircle').style.transform='scale(.52)';
+    $('breathLabel').textContent='ready';
+    startBlock('gate',data.settings.gateMinutes);
+    return;
+  }
+  let u=t%B_SEQ_TOTAL,idx=0;
+  while(u>B_SEQ[idx].d){u-=B_SEQ[idx].d;idx++}
+  const s=B_SEQ[idx],f=u/s.d,scale=s.f0+(s.f1-s.f0)*f;
+  $('breathCircle').style.transform='scale('+scale.toFixed(3)+')';
+  $('breathLabel').textContent=s.l;
+  const rounds=Math.max(1,Math.ceil(RT.breathTotal/B_SEQ_TOTAL));
+  $('breathCount').textContent='round '+Math.min(rounds,Math.floor(t/B_SEQ_TOTAL)+1)+' of about '+rounds;
+}
+function finishBreath(){startBlock('gate',data.settings.gateMinutes)}
+
+/* =====================================================================
+   BLOCK (gate 10 / focus 25·50) & BREAK
+   ===================================================================== */
+function startBlock(kind,minutes){
+  RT.block={kind,minutes,start:Date.now(),end:Date.now()+minutes*60000,recorded:false};
+  RT.paused=false;RT.blockDone=false;RT.pausedRemaining=0;
+  setPhase(PH.BLOCK);
+  $('blockTag').textContent=kind==='gate'?'the gate · '+minutes+' min':'focus · '+minutes+' min';
+  $('blockSubject').innerHTML='<b>'+esc(RT.ses.subject)+'</b>'+(RT.ses.intention?' · '+esc(RT.ses.intention):'');
+  $('blockNote').textContent=kind==='gate'
+    ?'The deal was only 10 minutes — when it rings you are truly free to stop. You\'ll choose what\'s next.'
+    :'One thing at a time. When the mind drifts, gently come back.';
+  $('btnPause').textContent='Pause';
+  $('pausedBadge').classList.remove('on');
+  $('blockRingFg').style.strokeDashoffset=String(RING_C);
+  $('blockTimer').textContent=fmtClock(minutes*60000);
+  requestAnimationFrame(paint);
+}
+function blockTick(now){
+  if(RT.paused||RT.blockDone||!RT.block)return;
+  const total=RT.block.minutes*60000,rem=RT.block.end-now;
+  if(rem<=0){
+    RT.blockDone=true;finishBlock(true);
+    chime();notify(RT.block.kind==='gate'?'Gate paid — 10 minutes. What now?':'Block complete — what now?');
+    showChoice(RT.block.kind);
+    $('blockTimer').textContent='00:00';
+    $('blockRingFg').style.strokeDashoffset='0';
+    return;
+  }
+  $('blockTimer').textContent=fmtClock(rem);
+  $('blockRingFg').style.strokeDashoffset=String(RING_C*(1-rem/total));
+}
+function togglePause(){
+  if(RT.phase!==PH.BLOCK||RT.blockDone||!RT.block)return;
+  if(!RT.paused){
+    RT.paused=true;RT.pausedRemaining=RT.block.end-Date.now();
+    $('btnPause').textContent='Resume';$('pausedBadge').classList.add('on');
+  }else{
+    RT.paused=false;RT.block.end=Date.now()+RT.pausedRemaining;
+    $('btnPause').textContent='Pause';$('pausedBadge').classList.remove('on');
+    requestAnimationFrame(paint);
+  }
+}
+function finishBlock(completed){
+  if(!RT.block||RT.block.recorded)return;
+  RT.block.recorded=true;
+  RT.ses.blocks.push({kind:RT.block.kind,minutes:RT.block.minutes,start:RT.block.start,
+    end:completed?RT.block.start+RT.block.minutes*60000:Date.now(),completed:!!completed});
+}
+function startBreak(minutes){
+  if(RT.block&&!RT.block.recorded)finishBlock(true);
+  RT.breakDone=false;RT.breakEnd=Date.now()+minutes*60000;RT.breakTotal=minutes*60000;
+  setPhase(PH.BREAK);
+  $('breakTimer').textContent=fmtClock(minutes*60000);
+  requestAnimationFrame(paint);
+}
+function breakTick(now){
+  if(RT.breakDone)return;
+  const total=RT.breakTotal,rem=RT.breakEnd-now;
+  if(rem<=0){
+    RT.breakDone=true;
+    $('breakTimer').textContent='00:00';
+    chime();notify('Break over — ready?');
+    showChoice('breakend');
+    return;
+  }
+  $('breakTimer').textContent=fmtClock(rem);
+}
+
+/* ---------------- choice modal ---------------- */
+function showChoice(source){
+  RT.modalKind='choice';
+  const box=$('modalBox');
+  const title=source==='gate'?'10 minutes paid. What now?':(source==='breakend'?'Break over — what now?':'Block done — what now?');
+  const sub=source==='gate'
+    ?'The deal was 10 minutes — you\'ve truly paid it. Whatever you choose now is the right answer.'
+    :(source==='breakend'?'Stretch done. The thread is waiting where you left it.':'Ten more, twenty-five, or wrap — your call.');
+  const g=25,b50=50,br=data.settings.breakMinutes,opts=[];
+  opts.push(['Continue with '+g+' min',()=>{closeModal();startBlock('focus',g)}]);
+  opts.push(['Continue with '+b50+' min',()=>{closeModal();startBlock('focus',b50)}]);
+  if(source!=='breakend')opts.push(['Take a '+br+'-min break',()=>{closeModal();startBreak(br)}]);
+  opts.push(['Wrap up the session',()=>{closeModal();wrapUp()}]);
+  box.innerHTML='<h2>'+esc(title)+'</h2><div class="modal-sub">'+esc(sub)+'</div>'+
+    '<div class="choices">'+opts.map((o,i)=>'<button class="btn '+(i===0?'primary':'soft')+'" data-oi="'+i+'">'+esc(o[0])+'</button>').join('')+'</div>';
+  box.querySelectorAll('[data-oi]').forEach(btn=>btn.addEventListener('click',()=>opts[+btn.dataset.oi][1]()));
+  $('backdrop').classList.add('on');
+}
+
+/* =====================================================================
+   WRAP
+   ===================================================================== */
+function sesFocusSec(ses){return ses.blocks.reduce((a,b)=>a+Math.max(0,(b.end-b.start))/1000,0)}
+function wrapUp(){
+  if(RT.phase===PH.BLOCK&&RT.block&&!RT.block.recorded)finishBlock(false);
+  if(!RT.ses){setPhase(PH.HOME);return}
+  setPhase(PH.WRAP);
+  const secs=sesFocusSec(RT.ses),blocks=RT.ses.blocks.filter(b=>b.completed).length;
+  $('wrapSummary').innerHTML='<span><b>'+fmtMin(secs)+'</b> focused</span><span><b>'+blocks+'</b> block'+(blocks===1?'':'s')+'</span><span><b>'+esc(RT.ses.subject)+'</b></span>';
+  $('taLeftOff').value='';
+  RT.ratingSel=0;
+  document.querySelectorAll('.rate').forEach(r=>r.classList.remove('sel'));
+}
+function saveSession(){
+  if(!RT.ses)return;
+  RT.ses.rating=RT.ratingSel;
+  RT.ses.leftOff=$('taLeftOff').value.trim();
+  RT.ses.endedAt=Date.now();
+  RT.ses.totalFocusSec=sesFocusSec(RT.ses);
+  if(RT.ses.leftOff)data.leftOff[RT.ses.subject]=RT.ses.leftOff;
+  data.sessions.push(RT.ses);
+  if(data.sessions.length>400)data.sessions=data.sessions.slice(-400);
+  save();
+  RT.ses=null;RT.block=null;
+  renderHome();setPhase(PH.HOME);
+  toast('Session saved. Rest well — the thread is there for next time.');
+}
+
+/* =====================================================================
+   JOURNAL / STATS
+   ===================================================================== */
+function renderStats(){
+  const S=data.sessions;
+  const todaySec=S.filter(x=>dayKey(x.startedAt)===dayKey(Date.now())).reduce((a,x)=>a+(x.totalFocusSec||0),0);
+  const allSec=S.reduce((a,x)=>a+(x.totalFocusSec||0),0);
+  $('stToday').innerHTML=fmtMin(todaySec)+'<small> min</small>';
+  $('stStreak').innerHTML=streakCount()+'<small> days</small>';
+  $('stTotal').innerHTML=fmtMin(allSec)+'<small> min</small>';
+  $('stCount').textContent=S.length;
+  const by={};S.forEach(x=>{const k=x.subject;by[k]=by[k]||{sec:0,n:0,last:0};by[k].sec+=x.totalFocusSec||0;by[k].n++;by[k].last=Math.max(by[k].last,x.startedAt)});
+  $('tblBody').innerHTML=Object.entries(by).sort((a,b)=>b[1].sec-a[1].sec)
+    .map(([k,v])=>'<tr><td>'+esc(k)+'</td><td class="r">'+fmtMin(v.sec)+' min</td><td class="r">'+v.n+'</td><td class="r">'+esc(fmtWhen(v.last))+'</td></tr>').join('');
+  const list=[...S].reverse().slice(0,60),rates={3:'✦ great',2:'✧ ok',1:'· fought it'};
+  $('sesList').innerHTML=list.map(x=>{
+    const cont=x.blocks.some(b=>b.kind==='focus');
+    const n=x.blocks.filter(b=>b.completed&&b.kind!=='break').length;
+    return '<div class="ses-item">'+
+      '<div class="row1"><span class="subj">'+esc(x.subject)+'</span><span class="when">'+esc(fmtWhen(x.startedAt))+'</span></div>'+
+      '<div class="row2"><span>'+fmtMin(x.totalFocusSec||0)+' min</span><span>·</span><span>'+n+' block'+(n===1?'':'s')+'</span>'+
+      '<span class="badge '+(cont?'cont':'gateonly')+'">'+(cont?'✓ kept going':'gate only')+'</span>'+
+      (x.rating?'<span class="badge r'+x.rating+'">'+rates[x.rating]+'</span>':'')+'</div>'+
+      (x.leftOff?'<div class="left-off">left off → '+esc(x.leftOff).replace(/\n/g,' · ')+'</div>':'')+
+      '</div>';
+  }).join('')||'<div class="dim tiny">no sessions yet — your first one is waiting at home</div>';
+}
+function download(name,content,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();
+}
+function exportJson(){
+  download('focus-gate-'+dayKey(Date.now())+'.json',
+    JSON.stringify({exportedAt:new Date().toISOString(),sessions:data.sessions},null,2),'application/json');
+  toast('Exported .json');
+}
+function exportCsv(){
+  const rows=[['subject','intention','started','ended','minutes','blocks','continued','rating','left_off']];
+  data.sessions.forEach(x=>rows.push([x.subject,x.intention,new Date(x.startedAt).toISOString(),
+    new Date(x.endedAt||x.startedAt).toISOString(),fmtMin(x.totalFocusSec||0),
+    x.blocks.filter(b=>b.completed&&b.kind!=='break').length,
+    x.blocks.some(b=>b.kind==='focus')?'yes':'no',x.rating||'',(x.leftOff||'').replace(/\r?\n/g,' | ')]));
+  const csv='\ufeff'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  download('focus-gate-'+dayKey(Date.now())+'.csv',csv,'text/csv');
+  toast('Exported .csv');
+}
+
+/* =====================================================================
+   SETTINGS
+   ===================================================================== */
+function openSettings(){
+  RT.modalKind='settings';
+  const S=data.settings,box=$('modalBox');
+  const RANGES={gateMinutes:[1,180],breakMinutes:[1,60],pointSeconds:[0,300],breathSeconds:[0,300]};
+  const row=(label,key)=>'<div class="set-row"><span>'+label+'</span><input type="number" min="'+RANGES[key][0]+'" max="'+RANGES[key][1]+'" value="'+S[key]+'" data-set="'+key+'" data-min="'+RANGES[key][0]+'" data-max="'+RANGES[key][1]+'"></div>';
+  const tog=(label,key)=>'<div class="set-row"><span>'+label+'</span><button class="tog '+(S[key]?'on':'')+'" data-tog="'+key+'">'+(S[key]?'on':'off')+'</button></div>';
+  const brow='<div class="set-row" style="flex-direction:column;align-items:stretch;gap:6px" >'+
+    '<span>YouTube video bridge — <i style="color:var(--faint)">optional, fixes “error 153”</i></span>'+
+    '<input type="text" data-tset="ytBridge" value="'+esc(S.ytBridge||'')+'" placeholder="https://…/focus-gate-bridge.html" spellcheck="false" style="background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12.5px;color:var(--ink);outline:none;width:100%">'+
+    '<div class="tiny faint" style="line-height:1.5">Since late 2025 YouTube refuses players on pages without a web identity — so videos inside a local file show error 153. Host one tiny page on any https space you own and paste its address here: videos then play <b>inside</b> Focus Gate again. No data about you ever passes through it.</div>'+
+    '<button class="ghost" id="btnGetBridge" style="justify-content:center;font-size:12px">⤓ Get the bridge page (.html)</button></div>';
+  box.innerHTML='<h2>Settings</h2>'+
+    row('The Gate — first block (min)','gateMinutes')+
+    row('Break length (min)','breakMinutes')+
+    row('The Point (seconds, 0 to skip)','pointSeconds')+
+    row('One Breath (seconds, 0 to skip)','breathSeconds')+
+    tog('Chime at block ends','chime')+
+    tog('Desktop notifications','notifications')+
+    tog('Auto fullscreen on start','autoFullscreen')+
+    brow;
+  box.querySelectorAll('[data-set]').forEach(inp=>inp.addEventListener('input',()=>{
+    const k=inp.dataset.set;const v=Math.max(+inp.dataset.min,Math.min(+inp.dataset.max,+inp.value||0));
+    data.settings[k]=v;save();
+  }));
+  const tb=box.querySelector('[data-tset]');
+  if(tb)tb.addEventListener('input',()=>{data.settings.ytBridge=tb.value.trim();save()});
+  const gb=box.querySelector('#btnGetBridge');
+  if(gb)gb.addEventListener('click',()=>{
+    download('focus-gate-bridge.html',BRIDGE_HTML,'text/html');
+    toast('Bridge page saved — host it on https (GitHub Pages / Netlify / Cloudflare), then paste its address in the field.');
+  });
+  box.querySelectorAll('[data-tog]').forEach(b=>b.addEventListener('click',()=>{
+    const k=b.dataset.tog;data.settings[k]=!data.settings[k];save();
+    b.classList.toggle('on',data.settings[k]);b.textContent=data.settings[k]?'on':'off';
+  }));
+  $('backdrop').classList.add('on');
+}
+
+/* =====================================================================
+   MAIN PAINT LOOP (rAF + background safety interval)
+   ===================================================================== */
+/* -------- logic tick: exact state transitions, independent of drawing --------
+   rAF only fires when the window is actually visible on screen — if the app is
+   minimized or covered, rAF stops, and sessions must still complete honestly.
+   So the transitions live in tickLogic (driven by a 1 s interval), while rAF
+   just makes the numbers/rings smooth when the screen is visible.            */
+function tickLogic(now){
+  if(RT.phase===PH.POINT){
+    const el=now-RT.pointStart,tot=RT.pointTotal;
+    if(el>=tot)finishPoint();
+  }else if(RT.phase===PH.BREATH){
+    breathTick(now);
+  }else if(RT.phase===PH.BLOCK){
+    blockTick(now);
+  }else if(RT.phase===PH.BREAK){
+    breakTick(now);
+  }
+}
+function paint(){
+  const now=Date.now();
+  tickLogic(now);
+  if(RT.phase===PH.POINT){
+    const el=now-RT.pointStart,tot=RT.pointTotal;
+    $('pointRingFg').style.strokeDashoffset=String(POINT_C*(1-Math.min(1,el/tot)));
+  }
+  requestAnimationFrame(paint);
+}
+/* 1 s interval also drives tickLogic so hidden/minimized windows stay honest
+   (+ keeps working to the second when Chrome throttles background timers)     */
+setInterval(()=>tickLogic(Date.now()),1000);
+/* if the window was fully frozen (blocked/occluded), converge the moment the
+   user comes back to it — deadlines are timestamp-based so the result is exact */
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){tickLogic(Date.now());Music.unlock()}});
+window.addEventListener('focus',()=>tickLogic(Date.now()));
+
+/* =====================================================================
+   WIRING
+   ===================================================================== */
+function toggleFullscreen(){
+  try{
+    if(document.fullscreenElement)document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(()=>{});
+  }catch(e){}
+}
+
+$('btnStart').addEventListener('click',startSession);
+$('inSubject').addEventListener('input',updateWarmHint);
+$('inSubject').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();startSession()}});
+$('inIntention').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();startSession()}});
+$('btnStats').addEventListener('click',()=>{renderStats();setPhase(PH.STATS)});
+$('btnBackHome').addEventListener('click',()=>setPhase(PH.HOME));
+$('btnSettings').addEventListener('click',openSettings);
+$('btnApps').addEventListener('click',openAppsScreen);
+$('btnAppsBreak').addEventListener('click',openAppsScreen);
+$('btnSaveWrap').addEventListener('click',saveSession);
+document.querySelectorAll('.rate').forEach(r=>r.addEventListener('click',()=>{
+  RT.ratingSel=+r.dataset.r;
+  document.querySelectorAll('.rate').forEach(x=>x.classList.toggle('sel',+x.dataset.r===RT.ratingSel));
+}));
+$('btnExportJson').addEventListener('click',exportJson);
+$('btnExportCsv').addEventListener('click',exportCsv);
+$('btnClearData').addEventListener('click',()=>{
+  if(RT.modalKind)return;
+  RT.modalKind='clear';
+  const box=$('modalBox');
+  box.innerHTML='<h2>Clear all data?</h2><div class="modal-sub">Every session, streak and note will be gone forever.</div>'+
+    '<div class="choices"><button class="btn soft" id="mCancel">Keep it</button>'+
+    '<button class="btn primary" id="mYes" style="background:var(--bad);color:#3b0d0d">Yes, delete everything</button></div>';
+  $('mCancel').addEventListener('click',closeModal);
+  $('mYes').addEventListener('click',()=>{data.sessions=[];data.leftOff={};data.subjects=[];save();closeModal();renderHome();setPhase(PH.HOME);toast('Cleared.')});
+  $('backdrop').classList.add('on');
+});
+$('backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop'&&RT.modalKind!=='choice')closeModal()});
+
+/* ritual */
+$('btnSkipRitual1').addEventListener('click',()=>{RT.ses.ritualSkipped=true;startBlock('gate',data.settings.gateMinutes)});
+$('btnSkipRitual2').addEventListener('click',()=>{RT.ses.ritualSkipped=true;finishBreath()});
+$('btnAbortR1').addEventListener('click',abortSession);
+$('btnAbortR2').addEventListener('click',abortSession);
+
+/* block & break */
+$('btnPause').addEventListener('click',togglePause);
+$('btnFull').addEventListener('click',toggleFullscreen);
+$('btnEndBlock').addEventListener('click',()=>{closeModal();wrapUp()});
+$('btnSkipBreak').addEventListener('click',()=>{RT.breakDone=true;showChoice('breakend')});
+
+/* keyboard */
+document.addEventListener('keydown',e=>{
+  const tag=(e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'){if(e.key==='Escape')e.target.blur();return}
+  if(e.key==='f'||e.key==='F')toggleFullscreen();
+  else if(e.code==='Space'&&RT.phase===PH.BLOCK){e.preventDefault();togglePause()}
+  else if(e.key==='Escape'){
+    if(RT.modalKind==='settings'||RT.modalKind==='clear')closeModal();
+    else if(RT.ovl)closeOvl();
+    else if(!RT.modalKind)$('playerPanel').classList.remove('on');
+  }
+});
+window.addEventListener('beforeunload',e=>{
+  if([PH.POINT,PH.BREATH,PH.BLOCK,PH.BREAK].includes(RT.phase)){e.preventDefault();e.returnValue=''}
+});
+
+/* ---------------- music wiring ---------------- */
+$('pillPanel').addEventListener('click',()=>$('playerPanel').classList.toggle('on'));
+$('pillLabel').addEventListener('click',()=>$('playerPanel').classList.toggle('on'));
+$('pillStop').addEventListener('click',()=>Music.stopAll());
+$('pillToggle').addEventListener('click',()=>Music.quickToggle());
+$('pVol').value=data.settings.masterVolume;
+$('pVol').addEventListener('input',e=>Music.setVol(+e.target.value));
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='pane-'+t.dataset.ptab));
+}));
+const BINAURAL={gamma:[340,40],beta:[392,16],alpha:[200,10]};
+document.querySelectorAll('.sn').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.snd;
+  if(k==='space')Music.curSource==='space'?Music.stopAll():Music.playDrone();
+  else if(k==='brown')Music.curSource==='brown'?Music.stopAll():Music.playNoise('brown');
+  else if(k==='pink')Music.curSource==='pink'?Music.stopAll():Music.playNoise('pink');
+  else{
+    if(Music.curSource===k)Music.stopAll();
+    else{const c=BINAURAL[k];Music.playBinaud(k,c[0],c[1])}
+  }
+}));
+
+/* curated YouTube */
+const CURATED=[
+  {id:'RqzGzwTY-6w',t:'Smoothed Brown Noise · 8 h'},
+  {id:'jfKfPfyJRdk',t:'lofi hip hop radio · live'},
+  {list:'PLHziMHRG7r_L-5lnBYDx-NFgcuk3fUSAu',t:'Interstellar Ambience · dark focus'}
+];
+function ytEmbed(v,list){
+  /* optional video bridge: an https page the user hosts once (see Settings).
+     it gives playback the real web identity YouTube requires since its 2025
+     referrer rule — a local file has no origin to send, so direct embeds show
+     "error 153"; through the bridge they play right inside the page again. */
+  const br=(data.settings.ytBridge||'').trim().replace(/\/+$/,'');
+  if(br&&/^(https:\/\/)/.test(br)){
+    return br+'/?'+(v?('yt='+v):('list='+list));
+  }
+  return v
+    ?'https://www.youtube.com/embed/'+v+'?autoplay=1&rel=0'
+    :'https://www.youtube.com/embed/videoseries?list='+list+'&autoplay=1&rel=0';
+}
+function parseYt(url){
+  url=String(url||'').trim();
+  if(!url)return null;
+  const chHandle=url.match(/youtube\.com\/(@[a-zA-Z0-9_.-]+)/i);
+  if(chHandle)return{v:null,list:null,ch:chHandle[1]};
+  const chId=url.match(/youtube\.com\/channel\/(UC[a-zA-Z0-9_-]{22})/i);
+  if(chId)return{v:null,list:null,chId:chId[1]};
+  if(!/youtube\.com|youtu\.be/.test(url)&&!/^[\w-]{11}$/.test(url))return null;
+  const v=url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);
+  const l=url.match(/list=([\w-]+)/);
+  if(v&&v[1])return{v:v[1],list:l&&l[1]};
+  if(l)return{v:null,list:l[1]};
+  if(/^[\w-]{11}$/.test(url))return{v:url,list:null};
+  return null;
+}
+/* ================= VIDEO ROOM — search & keep youtube inside the page ================= */
+const VR={
+  results:[],
+  now:null,
+  queue:[],
+  queueIndex:-1,
+  currentPlaylist:null,
+  currentChannel:null,
+  activeTab:'search',
+  channelSubTab:'playlists'
+};
+const IT_URL='https://www.youtube.com/youtubei/v1/search?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&prettyPrint=false';
+let ytAb=null;
+
+const ytKey=x=>x&&x.id?'v'+x.id:'p'+((x&&x.list)||'');
+const ytThumb=id=>'https://i.ytimg.com/vi/'+id+'/mqdefault.jpg';
+
+function setYtTab(name){
+  VR.activeTab=name;
+  const tabs=['Search','Playlist','Channel','Saved','Starters'];
+  tabs.forEach(t=>{
+    const btn=$('tabYt'+t);
+    const view=$('viewYt'+t);
+    const isThis=t.toLowerCase()===name.toLowerCase();
+    if(btn)btn.classList.toggle('on',isThis);
+    if(view)view.classList.toggle('on',isThis);
+  });
+  if(name==='playlist')$('tabYtPlaylist').style.display='inline-block';
+  if(name==='channel')$('tabYtChannel').style.display='inline-block';
+}
+
+function updateNavButtons(){
+  const hasQueue=VR.queue&&VR.queue.length>0;
+  if(!hasQueue){
+    $('btnYtPrev').disabled=true;
+    $('btnYtNext').disabled=true;
+    $('btnYtPrev').style.opacity='0.3';
+    $('btnYtNext').style.opacity='0.3';
+    return;
+  }
+  if(VR.now&&VR.now.id){
+    const idx=VR.queue.findIndex(x=>x.id===VR.now.id);
+    if(idx>=0)VR.queueIndex=idx;
+  }
+  const hasPrev=VR.queueIndex>0;
+  const hasNext=VR.queueIndex>=0&&VR.queueIndex<VR.queue.length-1;
+  $('btnYtPrev').disabled=!hasPrev;
+  $('btnYtNext').disabled=!hasNext;
+  $('btnYtPrev').style.opacity=hasPrev?'1':'0.3';
+  $('btnYtNext').style.opacity=hasNext?'1':'0.3';
+}
+
+function playNext(){
+  if(!VR.queue||!VR.queue.length)return;
+  if(VR.queueIndex<VR.queue.length-1){
+    VR.queueIndex++;
+    const v=VR.queue[VR.queueIndex];
+    Music.playYt(v);
+    renderPlaylistVideos();
+  }
+}
+function playPrev(){
+  if(!VR.queue||!VR.queue.length)return;
+  if(VR.queueIndex>0){
+    VR.queueIndex--;
+    const v=VR.queue[VR.queueIndex];
+    Music.playYt(v);
+    renderPlaylistVideos();
+  }
+}
+
+function videoNow(item){
+  VR.now=item||null;
+  const has=!!item;
+  $('ytWrap').style.display=has?'block':'none';
+  $('ytIdle').style.display=has?'none':'flex';
+  $('ytNowBar').style.display=has?'flex':'none';
+  $('paneYtNow').style.display=has?'flex':'none';
+  if(has){
+    $('ytNowTitle').textContent=item.t;
+    $('paneYtNowLbl').textContent=item.t;
+    $('btnYtSaveNow').textContent=data.ytSaved.some(x=>ytKey(x)===ytKey(item))?'★ Saved':'⋆ Save';
+
+    const chName=item.ch||(VR.currentChannel&&VR.currentChannel.title)||'';
+    const chId=item.chId||(VR.currentChannel&&VR.currentChannel.channelId)||'';
+    if(chName||chId){
+      $('btnYtChannelNow').style.display='inline-block';
+      $('btnYtChannelNow').textContent='📺 '+(chName||'Channel');
+      $('btnYtChannelNow').onclick=()=>{
+        loadChannel(chId||chName);
+      };
+    }else{
+      $('btnYtChannelNow').style.display='none';
+    }
+    updateNavButtons();
+  }
+}
+function toggleSave(v){
+  const k=ytKey(v),i=data.ytSaved.findIndex(x=>ytKey(x)===k);
+  if(i>=0){data.ytSaved.splice(i,1);toast('Removed from your videos.')}
+  else{
+    data.ytSaved.unshift({id:v.id||null,list:v.list||null,t:v.t,ch:v.ch||'',when:Date.now()});
+    if(data.ytSaved.length>80)data.ytSaved.length=80;
+    toast('★ kept — replays with one tap from the player.');
+  }
+  save();renderYTLists();
+  if(VR.now&&ytKey(VR.now)===k)videoNow(VR.now);
+}
+function ytRow(item,star){
+  const b=document.createElement('button');b.className='ytr';
+  const dur=item.live?'LIVE':(item.len||(item.list&&!item.id?'playlist':'video'));
+  b.innerHTML='<img loading="lazy" alt="" src="'+(item.id?ytThumb(item.id):'')+'">'+
+    '<span class="meta"><b>'+esc(item.t)+'</b><i>'+esc([item.ch,dur].filter(Boolean).join(' · '))+'</i></span>'+
+    '<span class="star'+(data.ytSaved.some(x=>ytKey(x)===ytKey(item))?' on':'')+'">★</span>';
+  b.addEventListener('click',()=>{if(item.id||item.list)Music.playYt(item)});
+  if(star)b.querySelector('.star').addEventListener('click',e=>{e.stopPropagation();toggleSave(item)});
+  return b;
+}
+function renderRoomResults(list){
+  const box=$('ytResults');box.innerHTML='';
+  if(!list.length){box.innerHTML='<div class="dim tiny" style="padding:6px 2px;line-height:1.7">Type above and press Enter — results land here, inside the room. No tab, no rabbit hole.<br>Try “brown noise 8 hours”, “lofi focus”, “Interstellar ambience”…</div>';return}
+  list.forEach(v=>box.appendChild(ytRow(v,true)));
+}
+function renderYtSaved(){
+  const box=$('ytSaved');box.innerHTML='';
+  if(!data.ytSaved.length){box.innerHTML='<div class="dim tiny" style="padding:6px 2px">Nothing kept yet — tap ★ on any result and it stays here, across sessions.</div>';return}
+  data.ytSaved.forEach(v=>box.appendChild(ytRow(v,true)));
+}
+function renderYtStarters(){
+  const box=$('ytStarters');box.innerHTML='';
+  CURATED.forEach(c=>{const it={id:c.id||null,list:c.list||null,t:c.t,ch:'starter'};box.appendChild(ytRow(it,true))});
+}
+function renderYtPane(){
+  const box=$('ytRepo');box.innerHTML='';
+  if(!data.ytSaved.length){box.innerHTML='<div class="dim tiny" style="padding:4px 2px">★-saved videos sit here for one-tap replay.</div>';return}
+  data.ytSaved.slice(0,8).forEach(v=>{
+    const b=document.createElement('button');b.className='yt-item';
+    b.innerHTML='<span class="te">▶</span><span>'+esc(v.t)+'</span>';
+    b.addEventListener('click',()=>{Music.playYt(v);openYtRoom()});
+    box.appendChild(b);
+  });
+}
+function renderYTLists(){renderYtSaved();renderYtStarters();renderYtPane()}
+function renderYt(){renderRoomResults([]);renderYTLists()}
+
+/* --- browse parser for playlists and channels --- */
+function parseBrowse(node,out,seenVids,seenPls){
+  if(!out)out={videos:[],playlists:[]};
+  if(!seenVids)seenVids=new Set();
+  if(!seenPls)seenPls=new Set();
+  if(!node||typeof node!=='object')return out;
+
+  // 1. Classic playlistVideoRenderer
+  if(node.playlistVideoRenderer){
+    const v=node.playlistVideoRenderer;
+    if(v.videoId&&!seenVids.has(v.videoId)){
+      seenVids.add(v.videoId);
+      const title=(v.title&&((v.title.runs&&v.title.runs[0]&&v.title.runs[0].text)||v.title.simpleText))||'';
+      const len=(v.lengthText&&v.lengthText.simpleText)||'';
+      const ch=(v.shortBylineText&&v.shortBylineText.runs&&v.shortBylineText.runs[0]&&v.shortBylineText.runs[0].text)||'';
+      const idx=(v.index&&v.index.simpleText)||out.videos.length+1;
+      out.videos.push({id:v.videoId,t:title,len,ch,index:idx});
+    }
+  }
+
+  // 2. Classic videoRenderer / compactVideoRenderer / gridVideoRenderer
+  const vr=node.videoRenderer||node.compactVideoRenderer||node.gridVideoRenderer;
+  if(vr&&vr.videoId&&!seenVids.has(vr.videoId)){
+    seenVids.add(vr.videoId);
+    const title=(vr.title&&((vr.title.runs&&vr.title.runs[0]&&vr.title.runs[0].text)||vr.title.simpleText))||'';
+    const len=(vr.lengthText&&vr.lengthText.simpleText)||'';
+    const ch=(vr.ownerText&&vr.ownerText.runs&&vr.ownerText.runs[0]&&vr.ownerText.runs[0].text)||(vr.shortBylineText&&vr.shortBylineText.runs&&vr.shortBylineText.runs[0]&&vr.shortBylineText.runs[0].text)||'';
+    out.videos.push({id:vr.videoId,t:title,len,ch,index:out.videos.length+1});
+  }
+
+  // 3. Modern lockupViewModel
+  if(node.lockupViewModel){
+    const lm=node.lockupViewModel;
+    if(lm.contentType==='LOCKUP_CONTENT_TYPE_VIDEO'&&lm.contentId&&!seenVids.has(lm.contentId)){
+      seenVids.add(lm.contentId);
+      const title=lm.metadata&&lm.metadata.lockupMetadataViewModel&&lm.metadata.lockupMetadataViewModel.title&&lm.metadata.lockupMetadataViewModel.title.content||'';
+      let len='';
+      try{
+        len=lm.contentImage.thumbnailViewModel.overlays[0].thumbnailBottomOverlayViewModel.badges[0].thumbnailBadgeViewModel.text||'';
+      }catch(e){}
+      let ch='';
+      try{
+        ch=lm.metadata.lockupMetadataViewModel.metadata.contentMetadataViewModel.metadataRows[0].metadataParts[0].text.content||'';
+      }catch(e){}
+      let chId='';
+      try{
+        chId=lm.metadata.lockupMetadataViewModel.image.decoratedAvatarViewModel.rendererContext.commandContext.onTap.innertubeCommand.browseEndpoint.browseId||'';
+      }catch(e){}
+      out.videos.push({id:lm.contentId,t:title,len,ch,chId,index:out.videos.length+1});
+    }else if(lm.contentType==='LOCKUP_CONTENT_TYPE_PLAYLIST'&&lm.contentId&&!seenPls.has(lm.contentId)){
+      seenPls.add(lm.contentId);
+      const title=lm.metadata&&lm.metadata.lockupMetadataViewModel&&lm.metadata.lockupMetadataViewModel.title&&lm.metadata.lockupMetadataViewModel.title.content||'';
+      let count='';
+      try{
+        count=lm.contentImage.collectionThumbnailViewModel.primaryThumbnail.thumbnailViewModel.overlays[0].thumbnailOverlayBadgeViewModel.thumbnailBadges[0].thumbnailBadgeViewModel.text||'';
+      }catch(e){}
+      let thumb='';
+      try{
+        thumb=lm.contentImage.collectionThumbnailViewModel.primaryThumbnail.thumbnailViewModel.image.sources[0].url||'';
+      }catch(e){}
+      out.playlists.push({list:lm.contentId,t:title,count,thumb,index:out.playlists.length+1});
+    }
+  }
+
+  // 4. Classic playlistRenderer / gridPlaylistRenderer
+  const pr=node.playlistRenderer||node.gridPlaylistRenderer;
+  if(pr&&pr.playlistId&&!seenPls.has(pr.playlistId)){
+    seenPls.add(pr.playlistId);
+    const title=(pr.title&&((pr.title.runs&&pr.title.runs[0]&&pr.title.runs[0].text)||pr.title.simpleText))||'';
+    const count=(pr.videoCountText&&pr.videoCountText.runs&&pr.videoCountText.runs[0]&&pr.videoCountText.runs[0].text)||(pr.videoCountShortText&&pr.videoCountShortText.simpleText)||'';
+    out.playlists.push({list:pr.playlistId,t:title,count,index:out.playlists.length+1});
+  }
+
+  if(Array.isArray(node)){
+    for(const item of node)parseBrowse(item,out,seenVids,seenPls);
+  }else{
+    for(const k of Object.keys(node))parseBrowse(node[k],out,seenVids,seenPls);
+  }
+  return out;
+}
+
+/* --- playlist chapter loader & renderer --- */
+async function loadPlaylist(playlistId, preferredVidId){
+  if(!playlistId)return;
+  ytStatus('loading playlist chapters…');
+  setYtTab('playlist');
+  $('ytPlTitle').textContent='Loading chapters…';
+  $('ytPlaylistVideos').innerHTML='<div class="dim tiny" style="padding:10px 4px">Fetching course chapters…</div>';
+
+  try{
+    const isLocalServer=location.protocol==='http:'||location.protocol==='https:';
+    const browseUrl=(isLocalServer?'':'http://127.0.0.1:8899')+'/api/yt-browse?id=VL'+encodeURIComponent(playlistId);
+    const res=await fetch(browseUrl);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const parsed=parseBrowse(data);
+
+    if(!parsed.videos.length){
+      $('ytPlaylistVideos').innerHTML='<div class="dim tiny" style="padding:8px 4px">No chapters found in this playlist.</div>';
+      ytStatus('');
+      return;
+    }
+
+    let plTitle='Playlist ('+parsed.videos.length+' chapters)';
+    let plCh='', plChId='';
+    try{
+      const hdr=data.header&&data.header.playlistHeaderRenderer;
+      if(hdr){
+        if(hdr.title)plTitle=(hdr.title.runs&&hdr.title.runs[0]&&hdr.title.runs[0].text)||hdr.title.simpleText||plTitle;
+        if(hdr.ownerText){
+          plCh=(hdr.ownerText.runs&&hdr.ownerText.runs[0]&&hdr.ownerText.runs[0].text)||hdr.ownerText.simpleText||'';
+          plChId=hdr.ownerText.runs&&hdr.ownerText.runs[0]&&hdr.ownerText.runs[0].navigationEndpoint&&hdr.ownerText.runs[0].navigationEndpoint.browseEndpoint&&hdr.ownerText.runs[0].navigationEndpoint.browseEndpoint.browseId||'';
+        }
+      }
+    }catch(e){}
+
+    if(plCh||plChId){
+      parsed.videos.forEach(v=>{
+        if(!v.ch)v.ch=plCh;
+        if(!v.chId)v.chId=plChId;
+      });
+      if(!VR.currentChannel)VR.currentChannel={channelId:plChId,title:plCh};
+    }
+
+    VR.currentPlaylist={id:playlistId,title:plTitle,videos:parsed.videos};
+    VR.queue=parsed.videos;
+    $('ytPlTitle').textContent=plTitle;
+    $('tabYtPlaylist').style.display='inline-block';
+
+    renderPlaylistVideos();
+    ytStatus(parsed.videos.length+' chapters ready');
+
+    if(preferredVidId){
+      const match=parsed.videos.find(v=>v.id===preferredVidId);
+      if(match){
+        VR.queueIndex=parsed.videos.indexOf(match);
+        Music.playYt(match);
+      }
+    }
+  }catch(e){
+    ytStatus('');
+    $('ytPlaylistVideos').innerHTML='<div class="dim tiny" style="padding:8px 4px">Could not load playlist chapters: '+esc(e.message)+'</div>';
+  }
+}
+
+function renderPlaylistVideos(){
+  const box=$('ytPlaylistVideos');box.innerHTML='';
+  if(!VR.queue||!VR.queue.length){
+    box.innerHTML='<div class="dim tiny" style="padding:8px 4px">No chapters loaded.</div>';
+    return;
+  }
+  VR.queue.forEach((v, idx)=>{
+    const b=document.createElement('button');
+    const isPlaying=VR.now&&VR.now.id===v.id;
+    b.className='ytr'+(isPlaying?' now-playing':'');
+    b.innerHTML='<span style="font-size:11px;color:var(--faint);font-weight:600;min-width:20px;text-align:right">'+(idx+1)+'.</span>'+
+      '<img loading="lazy" alt="" src="'+ytThumb(v.id)+'">'+
+      '<span class="meta"><b>'+esc(v.t)+'</b><i>'+esc([v.len||'video',v.ch].filter(Boolean).join(' · '))+'</i></span>'+
+      '<span class="star'+(data.ytSaved.some(x=>ytKey(x)===ytKey(v))?' on':'')+'">★</span>';
+    b.addEventListener('click',()=>{
+      VR.queueIndex=idx;
+      Music.playYt(v);
+      renderPlaylistVideos();
+    });
+    b.querySelector('.star').addEventListener('click',e=>{
+      e.stopPropagation();
+      toggleSave(v);
+    });
+    box.appendChild(b);
+  });
+  updateNavButtons();
+}
+
+/* --- channel loader & renderer --- */
+async function loadChannel(queryOrId, tab='playlists'){
+  queryOrId=(queryOrId||'').trim();
+  if(!queryOrId)return;
+  ytStatus('opening channel…');
+  setYtTab('channel');
+  $('ytChTitle').textContent='Loading channel…';
+  $('ytChMeta').textContent='';
+  $('ytChannelItems').innerHTML='<div class="dim tiny" style="padding:10px 4px">Loading channel courses & videos…</div>';
+
+  try{
+    const isLocalServer=location.protocol==='http:'||location.protocol==='https:';
+    const baseUrl=isLocalServer?'':'http://127.0.0.1:8899';
+    let chInfo=null;
+
+    if(/^UC[a-zA-Z0-9_-]{22}$/.test(queryOrId)){
+      chInfo={channelId:queryOrId,title:'Channel',handle:'',subscribers:'',thumbnail:''};
+    }else{
+      const r=await fetch(baseUrl+'/api/yt-channel?q='+encodeURIComponent(queryOrId));
+      if(!r.ok)throw new Error('Channel not found');
+      chInfo=await r.json();
+    }
+
+    VR.currentChannel=chInfo;
+    $('ytChTitle').textContent=chInfo.title||queryOrId;
+    $('ytChMeta').textContent=[chInfo.handle,chInfo.subscribers].filter(Boolean).join(' · ');
+    if(chInfo.thumbnail)$('ytChThumb').src=chInfo.thumbnail;
+    $('tabYtChannel').style.display='inline-block';
+
+    await switchChannelTab(tab);
+    ytStatus('');
+  }catch(e){
+    ytStatus('');
+    $('ytChTitle').textContent='Channel';
+    $('ytChannelItems').innerHTML='<div class="dim tiny" style="padding:8px 4px">Could not load channel: '+esc(e.message)+'</div>';
+  }
+}
+
+async function switchChannelTab(subTab){
+  if(!VR.currentChannel||!VR.currentChannel.channelId)return;
+  VR.channelSubTab=subTab;
+  $('btnChPlaylists').classList.toggle('on',subTab==='playlists');
+  $('btnChVideos').classList.toggle('on',subTab==='videos');
+  $('ytChannelItems').innerHTML='<div class="dim tiny" style="padding:10px 4px">Loading '+(subTab==='playlists'?'course playlists':'videos')+'…</div>';
+
+  try{
+    const isLocalServer=location.protocol==='http:'||location.protocol==='https:';
+    const baseUrl=isLocalServer?'':'http://127.0.0.1:8899';
+    const params=subTab==='playlists'?'EglwbGF5bGlzdHPyBgoKCEIGCgIQaCIA':'EgZ2aWRlb3PyBgQKAjoA';
+    const r=await fetch(baseUrl+'/api/yt-browse?id='+encodeURIComponent(VR.currentChannel.channelId)+'&params='+encodeURIComponent(params));
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const parsed=parseBrowse(data);
+
+    if(subTab==='playlists'){
+      VR.currentChannel.playlists=parsed.playlists;
+      renderChannelPlaylists(parsed.playlists);
+    }else{
+      VR.currentChannel.videos=parsed.videos;
+      renderChannelVideos(parsed.videos);
+    }
+  }catch(e){
+    $('ytChannelItems').innerHTML='<div class="dim tiny" style="padding:8px 4px">Could not load channel content: '+esc(e.message)+'</div>';
+  }
+}
+
+function renderChannelPlaylists(playlists){
+  const box=$('ytChannelItems');box.innerHTML='';
+  if(!playlists||!playlists.length){
+    box.innerHTML='<div class="dim tiny" style="padding:8px 4px">No playlists found for this channel.</div>';
+    return;
+  }
+  playlists.forEach(pl=>{
+    const d=document.createElement('div');
+    d.className='pl-card';
+    const visual=pl.thumb
+      ?'<img loading="lazy" src="'+esc(pl.thumb)+'" style="width:52px;height:34px;object-fit:cover;border-radius:6px;flex:none;background:#000" alt="">'
+      :'<div class="pl-ic">📑</div>';
+    d.innerHTML=visual+
+      '<div class="pl-meta"><b>'+esc(pl.t)+'</b><i>'+esc(pl.count||'Playlist')+'</i></div>'+
+      '<div style="display:flex;gap:6px">'+
+        '<button class="ghost tiny" style="padding:3px 8px" title="Browse chapters">Chapters</button>'+
+        '<button class="ghost tiny" style="padding:3px 8px;color:var(--accent)" title="Play all in order">▶ Play</button>'+
+      '</div>';
+    d.addEventListener('click',()=>loadPlaylist(pl.list));
+    const playBtn=d.querySelectorAll('button')[1];
+    playBtn.addEventListener('click',e=>{
+      e.stopPropagation();
+      loadPlaylist(pl.list).then(()=>{
+        if(VR.queue&&VR.queue.length){
+          VR.queueIndex=0;
+          Music.playYt(VR.queue[0]);
+        }else{
+          Music.playYt({list:pl.list,t:pl.t});
+        }
+      });
+    });
+    box.appendChild(d);
+  });
+}
+
+function renderChannelVideos(videos){
+  const box=$('ytChannelItems');box.innerHTML='';
+  if(!videos||!videos.length){
+    box.innerHTML='<div class="dim tiny" style="padding:8px 4px">No uploaded videos found.</div>';
+    return;
+  }
+  videos.forEach((v, idx)=>{
+    const b=document.createElement('button');b.className='ytr';
+    const dur=v.live?'LIVE':(v.len||'video');
+    b.innerHTML='<img loading="lazy" alt="" src="'+ytThumb(v.id)+'">'+
+      '<span class="meta"><b>'+esc(v.t)+'</b><i>'+esc([v.ch||(VR.currentChannel&&VR.currentChannel.title)||'',dur].filter(Boolean).join(' · '))+'</i></span>'+
+      '<span class="star'+(data.ytSaved.some(x=>ytKey(x)===ytKey(v))?' on':'')+'">★</span>';
+    b.addEventListener('click',()=>{
+      VR.queue=videos;
+      VR.queueIndex=idx;
+      Music.playYt(v);
+    });
+    b.querySelector('.star').addEventListener('click',e=>{e.stopPropagation();toggleSave(v)});
+    box.appendChild(b);
+  });
+}
+
+/* --- search (YouTube's own public web endpoint; no key, no sign-in) --- */
+function ytStatus(s){$('ytStatus').textContent=s||''}
+function collectVids(node,out,seen){
+  if(!node||typeof node!=='object')return;
+  if(Array.isArray(node)){for(const n of node)collectVids(n,out,seen);return}
+  const v=node.videoRenderer;
+  if(v&&v.videoId&&/^[A-Za-z0-9_-]{11}$/.test(v.videoId)&&!seen.has(v.videoId)){
+    const t=(v.title&&((v.title.runs&&v.title.runs[0]&&v.title.runs[0].text)||v.title.simpleText))||'';
+    if(t){
+      seen.add(v.videoId);
+      const ch=(v.ownerText&&v.ownerText.runs&&v.ownerText.runs[0]&&v.ownerText.runs[0].text)||'';
+      const len=(v.lengthText&&v.lengthText.simpleText)||'';
+      const live=!len&&((v.badges||[]).some(b=>b&&b.metadataBadgeRenderer&&b.metadataBadgeRenderer.style==='BADGE_STYLE_TYPE_LIVE_NOW'));
+      out.push({id:v.videoId,t,ch,len,live});
+    }
+  }
+  for(const k in node)collectVids(node[k],out,seen);
+}
+async function ytSearch(q){
+  q=(q||'').trim();
+  if(!q){ytStatus('type what to listen to — “brown noise 8 hours”, “lofi focus”…');return}
+
+  // Direct channel handle or channel: search
+  if(q.startsWith('@')||q.toLowerCase().startsWith('channel:')){
+    $('inYtQuery').value='';
+    loadChannel(q.replace(/^channel:\s*/i,''));
+    return;
+  }
+
+  /* Smart detection: If the user pasted a YouTube video URL, playlist, or channel URL */
+  const p=parseYt(q);
+  if(p){
+    ytStatus('opening…');
+    $('inYtQuery').value='';
+    addFromLink(q);
+    return;
+  }
+
+  setYtTab('search');
+  if(ytAb)ytAb.abort();
+  ytAb=new AbortController();
+  ytStatus('searching youtube…');
+  try{
+    let j=null;
+    /* 1. Try local server proxy (works 100% on localhost with zero CORS issues) */
+    const isLocalServer=location.protocol==='http:'||location.protocol==='https:';
+    const proxyUrl=isLocalServer?'/api/yt-search?q='+encodeURIComponent(q):'http://127.0.0.1:8899/api/yt-search?q='+encodeURIComponent(q);
+    try{
+      const pres=await fetch(proxyUrl,{signal:ytAb.signal});
+      if(pres.ok){
+        j=await pres.json();
+      }
+    }catch(err){}
+
+    /* 2. Fallback to direct InnerTube search (works from file:// where origin is null) */
+    if(!j){
+      const res=await fetch(IT_URL,{method:'POST',signal:ytAb.signal,
+        headers:{'content-type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({context:{client:{clientName:'WEB',clientVersion:'2.20241126.01.00',hl:'en'}},query:q,params:'EgIQAQ=='})});
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      j=await res.json();
+    }
+
+    // Check if a channel result was returned in the search
+    let foundCh=null;
+    function findSearchCh(node){
+      if(!node||typeof node!=='object'||foundCh)return;
+      if(node.channelRenderer){foundCh=node.channelRenderer;return}
+      if(Array.isArray(node)){for(let i=0;i<node.length;i++){findSearchCh(node[i]);if(foundCh)return}}
+      else{for(const k of Object.keys(node)){findSearchCh(node[k]);if(foundCh)return}}
+    }
+    findSearchCh(j);
+
+    const seen=new Set(),out=[];
+    collectVids(j,out,seen);
+    if(out.length){
+      renderRoomResults(out.slice(0,24));
+      ytStatus(out.length+' found — tap to play, ★ to keep');
+      if(foundCh){
+        const chTitle=(foundCh.title&&foundCh.title.simpleText)||'';
+        const chId=foundCh.channelId;
+        const bar=document.createElement('div');
+        bar.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(255,201,120,.09);border:1px solid rgba(255,201,120,.25);border-radius:10px;margin-bottom:8px;cursor:pointer';
+        bar.innerHTML='<span style="font-size:12px;color:var(--accent);font-weight:600">📺 Channel: '+esc(chTitle)+'</span><span style="font-size:11px;color:var(--dim)">Browse Playlists & Chapters →</span>';
+        bar.addEventListener('click',()=>loadChannel(chId||chTitle));
+        $('ytResults').prepend(bar);
+      }
+    }
+    else if(foundCh){
+      loadChannel(foundCh.channelId||(foundCh.title&&foundCh.title.simpleText));
+    }
+    else ytFail('YouTube answered, but gave no videos for that.');
+  }catch(e){
+    if(e&&e.name==='AbortError')return;
+    ytFail('Search could not be reached right now.');
+  }
+}
+function ytFail(msg){
+  ytStatus('');
+  const box=$('ytResults');
+  box.innerHTML='<div class="dim tiny" style="padding:8px 2px;line-height:1.7">'+esc(msg)+
+    '<br>You can still watch anything: paste a link above or below, or search YouTube directly in its own window.</div>'+
+    '<div class="ytr-fail"><button class="ghost" id="btnYtRetry">↻ Try search again</button>'+
+    '<button class="ghost" id="btnYtOpenWin">⧉ Search youtube.com in a window</button></div>';
+  $('btnYtRetry').addEventListener('click',()=>ytSearch($('inYtQuery').value));
+  $('btnYtOpenWin').addEventListener('click',()=>launchWindow({id:'ytw',name:'YouTube',url:'https://www.youtube.com/results?search_query='+encodeURIComponent($('inYtQuery').value||'')}));
+}
+
+/* --- pasted links get real titles & keepers --- */
+async function ytOembed(v){
+  try{
+    const isLocalServer=location.protocol==='http:'||location.protocol==='https:';
+    const proxyUrl=isLocalServer?'/api/yt-oembed?v='+encodeURIComponent(v):'http://127.0.0.1:8899/api/yt-oembed?v='+encodeURIComponent(v);
+    try{
+      const pr=await fetch(proxyUrl);
+      if(pr.ok){
+        const pj=await pr.json();
+        if(pj&&pj.title)return {t:pj.title,ch:pj.author_name||''};
+      }
+    }catch(e){}
+
+    const r=await fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+v));
+    if(!r.ok)return null;
+    const j=await r.json();
+    return (j&&j.title)?{t:j.title,ch:j.author_name||''}:null;
+  }catch(e){return null}
+}
+async function addFromLink(val){
+  val=(val||'').trim();if(!val)return;
+  const p=parseYt(val);
+  if(!p){toast('Paste a YouTube video, playlist, or channel link.');return}
+
+  // Channel link pasted!
+  if(p.ch||p.chId){
+    $('ytUrl').value='';
+    loadChannel(p.chId||p.ch);
+    toast('Opening channel…');
+    return;
+  }
+
+  // Playlist link pasted!
+  if(p.list){
+    $('ytUrl').value='';
+    loadPlaylist(p.list, p.v);
+    toast('Loading playlist chapters…');
+    return;
+  }
+
+  // Single video pasted!
+  const item=p.v?{id:p.v,list:null}:{id:null,list:null};
+  item.t='Pasted video';item.ch='';item.when=Date.now();
+  const k=ytKey(item),ix=data.ytSaved.findIndex(x=>ytKey(x)===k),isNew=ix<0;
+  if(!isNew){const old=data.ytSaved.splice(ix,1)[0];item.t=old.t;item.ch=old.ch||item.ch;item.reused=true}
+  data.ytSaved.unshift(item);save();renderYTLists();
+  Music.playYt(item);
+  if(isNew&&p.v){
+    const o=await ytOembed(p.v);
+    if(o&&o.t){item.t=o.t;item.ch=o.ch;save();videoNow(item);renderYTLists()}
+  }
+  $('ytUrl').value='';
+  toast(item.t+(isNew?' — saved to your videos.':' — back in the player.'));
+}
+
+/* --- overlays: full windows above the current screen; the phase machine
+       (block/break timers, chimes, choice modal) keeps running underneath --- */
+function openOvl(name){
+  closeOvl();
+  RT.ovl=name;
+  $(SCREENS[name]).classList.add('on');
+  if(name===PH.YT)setTimeout(()=>{try{$('inYtQuery').focus()}catch(e){}},80);
+}
+function closeOvl(){
+  if(!RT.ovl)return;
+  if(RT.ovl===PH.APPFRAME)$('appFrame').removeAttribute('src');
+  $(SCREENS[RT.ovl]).classList.remove('on');
+  RT.ovl=null;
+}
+function updateYtNotice(){
+  const note=$('ytNotice');
+  if(!note)return;
+  if(location.protocol!=='file:' || (data.settings.ytBridge&&data.settings.ytBridge.trim())){
+    note.innerHTML='✓ <b>Workspace server active</b> — videos play directly inside Focus Gate without Error 153. Audio continues when the room closes. The volume wheel controls generated sounds; the video has its own.';
+  }else{
+    note.innerHTML='💡 <b>Local file mode</b>: To watch videos directly inside the page without YouTube Error 153, run <b>Start Focus Gate.bat</b>. Or press <b>⧉ Window</b> to watch in a companion window.';
+  }
+}
+function openYtRoom(){
+  updateYtNotice();
+  openOvl(PH.YT);
+}
+function openAppsScreen(){openOvl(PH.APPS)}
+
+let notesSubject='General';
+function openNotesScreen(){
+  notesSubject=(RT.ses&&RT.ses.subject)?RT.ses.subject:($('inSubject')?.value.trim()||'General');
+  $('notesTitle').textContent='Lesson Notes · '+notesSubject;
+  $('taLessonNotes').value=(data.notes&&data.notes[notesSubject])||'';
+  openOvl(PH.NOTES);
+  setTimeout(()=>{try{$('taLessonNotes').focus()}catch(e){}},80);
+}
+
+/* The bridge page the user may host on any https address to unlock in-page playback.
+   (kept out of a template literal; note the split script terminator) */
+const BRIDGE_HTML=
+'<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Focus Gate video bridge</title>\n<style>html,body{height:100%;margin:0;background:#000;overflow:hidden}iframe{width:100%;height:100%;border:0;display:block}</style>\n</head>\n<body>\n<script>\n'+
+'/* Focus Gate video bridge - a real https origin for YouTube players.\n'+
+'   Upload once to any https host (GitHub Pages, Netlify, Cloudflare Pages...),\n'+
+'   then paste the file address into Focus Gate - Settings - "YouTube video bridge".\n'+
+'   Usage:  .../bridge.html?yt=VIDEO_ID   or  .../bridge.html?list=PLAYLIST_ID */\n'+
+'var q=new URLSearchParams(location.search);\n'+
+'var id=q.get("yt")||"",list=q.get("list")||"";\n'+
+'if(!id&&!list){document.body.textContent="No video. Open as ?yt=VIDEO_ID or ?list=PLAYLIST_ID";}\n'+
+'else document.body.innerHTML=\'<iframe src="https://www.youtube-nocookie.com/embed/\'+(id?id:"videoseries?list="+list)+\'?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"><\'\'+"/iframe>";\n'+
+'<\/scr'+'ipt>\n</body>\n</html>';
+/* ================= WORK APPS — real windows beside the workspace ================= */
+/* most big apps (Gmail, ChatGPT…) forbid being embedded; their tiles open in a
+   reusable sized window so the focus page (with its timers & music) never leaves */
+const XFO_HOSTS=['chatgpt.com','chat.openai.com','mail.google.com','calendar.google.com','claude.ai','gemini.google.com','perplexity.ai','notion.so','notion.site','x.com','twitter.com','instagram.com','facebook.com','messenger.com','reddit.com','linkedin.com','web.whatsapp.com','accounts.google.com','docs.google.com','drive.google.com','deepseek.com','grok.com','github.com'];
+const APP_ICONS=[['chatgpt','🤖'],['openai','🤖'],['deepseek','🐳'],['claude','🧠'],['desmos','📐'],['excalidraw','✏️'],['gmail','✉️'],['mail.google','✉️'],['calendar','📅'],['gemini','✨'],['notion','📓'],['whatsapp','💬'],['perplexity','🔮'],['x.com','𝕏'],['twitter','🕊'],['instagram','📸'],['facebook','👤'],['reddit','👽'],['linkedin','💼'],['youtube','▶'],['keep','📌'],['github','🐙'],['figma','🎨'],['translate','🌍'],['grok','⚡']];
+function hostOf(u){try{return String(new URL(u).hostname).toLowerCase()}catch(e){return ''}}
+function iconFor(u){const h=hostOf(u);const m=APP_ICONS.find(x=>h.indexOf(x[0])>=0);return m?m[1]:'🌐'}
+function normUrl(u){u=(u||'').trim();if(!/^[a-z][a-z0-9+.-]*:\/\//i.test(u))u='https://'+u;return u}
+function modeOf(app){
+  if(app.mode==='window'||app.mode==='embed')return app.mode;
+  const h=hostOf(app.url);
+  return XFO_HOSTS.some(x=>h===x||h.endsWith('.'+x))?'window':'embed';
+}
+function launchWindow(app){
+  try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
+  const isSession=[PH.BLOCK,PH.BREAK,PH.POINT,PH.BREATH].includes(RT.phase);
+  let W,H,L,T;
+  if(isSession && window.screen.availWidth>=1200){
+    // Smart side-by-side mode: place app on the right side, timer visible on left
+    W=Math.floor(window.screen.availWidth*0.58);
+    H=Math.min(920,Math.floor(window.screen.availHeight*0.92));
+    L=Math.floor(window.screen.availWidth*0.41);
+    T=Math.max(0,Math.floor((window.screen.availHeight-H)/2));
+  }else{
+    W=Math.min(1240,Math.floor(window.screen.availWidth*0.86));
+    H=Math.min(880,Math.floor(window.screen.availHeight*0.88));
+    L=Math.max(0,Math.floor((window.screen.availWidth-W)/2));
+    T=Math.max(0,Math.floor((window.screen.availHeight-H)/2));
+  }
+  const w=window.open(app.url,'fgapp-'+(app.id||app.name||'x'),'popup=yes,width='+W+',height='+H+',left='+L+',top='+T);
+  if(w){try{w.focus()}catch(e){}toast('“'+app.name+'” opened side-by-side — the workspace underneath keeps running.')}
+  else toast('The browser blocked the window — allow popups for this file, or force the embedded try.');
+}
+function openAppFrame(app){
+  RT.frameApp=app;
+  $('appTitleName').innerHTML='<b>'+esc(app.name)+'</b>';
+  const f=$('appFrame');
+  if(f.getAttribute('src')!==app.url)f.src=app.url;
+  openOvl(PH.APPFRAME);
+}
+function launchApp(app){
+  if(modeOf(app)==='window')launchWindow(app);
+  else openAppFrame(app);
+}
+function renderApps(){
+  const g=$('appsGrid');g.innerHTML='';
+  data.apps.forEach(a=>{
+    const m=modeOf(a);
+    const d=document.createElement('div');d.className='app-tile';d.dataset.id=a.id;
+    d.innerHTML='<div class="rm" title="remove">✕</div><div class="ic">'+(a.icon||iconFor(a.url))+'</div><div class="nm">'+esc(a.name)+'</div>'+
+      '<div class="mode '+(m==='window'?'win':'emb')+'" title="click to change the opening mode">'+(m==='window'?'own window':'try embedded')+'</div>';
+    g.appendChild(d);
+  });
+}
+$('appsGrid').addEventListener('click',e=>{
+  const tile=e.target.closest('.app-tile');if(!tile)return;
+  const app=data.apps.find(a=>a.id===tile.dataset.id);if(!app)return;
+  if(e.target.closest('.rm')){data.apps=data.apps.filter(a=>a.id!==app.id);save();renderApps();toast('Removed “'+app.name+'”.');return}
+  if(e.target.closest('.mode')){app.mode=app.mode==='window'?'embed':(app.mode==='embed'?'auto':'window');
+    save();renderApps();
+    toast(app.name+' → '+(app.mode==='window'?'always its own window':(app.mode==='embed'?'always tries embedded first':'auto — smart guess')));
+    return}
+  launchApp(app);
+});
+$('btnAddApp').addEventListener('click',()=>{
+  const n=$('inAppName').value.trim(),u=normUrl($('inAppUrl').value);
+  if(!n){toast('Give it a name first.');$('inAppName').focus();return}
+  let url;try{url=new URL(u)}catch(e){toast('Name it, then paste a working link.');return}
+  data.apps.push({id:'a'+Date.now().toString(36),name:n,url:url.href,icon:iconFor(u),mode:'auto'});
+  save();renderApps();
+  $('inAppName').value='';$('inAppUrl').value='';
+  toast('“'+n+'” added. Click its tag to force own-window vs embedded.');
+});
+$('btnAppsReset').addEventListener('click',()=>{
+  const have=new Set(data.apps.map(a=>a.id));
+  DEFAULT_APPS.forEach(a=>{if(!have.has(a.id))data.apps.push(deep(a))});
+  save();renderApps();toast('Starter apps restored.');
+});
+
+/* --- wire the video room, apps screen & embedded frame --- */
+$('btnYtBack').addEventListener('click',closeOvl);
+$('btnAppsBack').addEventListener('click',closeOvl);
+$('btnAppBack').addEventListener('click',closeOvl);
+$('btnAppClose').addEventListener('click',closeOvl);
+$('btnAppWin').addEventListener('click',()=>{if(RT.frameApp)launchWindow(RT.frameApp)});
+$('btnVideoBlock').addEventListener('click',openYtRoom);
+$('btnAppsBlock').addEventListener('click',openAppsScreen);
+$('btnVideoBreak').addEventListener('click',openYtRoom);
+$('btnYtSearch').addEventListener('click',()=>ytSearch($('inYtQuery').value));
+$('inYtQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ytSearch($('inYtQuery').value)}});
+$('tabYtSearch').addEventListener('click',()=>setYtTab('search'));
+$('tabYtPlaylist').addEventListener('click',()=>setYtTab('playlist'));
+$('tabYtChannel').addEventListener('click',()=>setYtTab('channel'));
+$('tabYtSaved').addEventListener('click',()=>setYtTab('saved'));
+$('tabYtStarters').addEventListener('click',()=>setYtTab('starters'));
+$('btnYtPrev').addEventListener('click',playPrev);
+$('btnYtNext').addEventListener('click',playNext);
+$('btnYtChannelNow').addEventListener('click',()=>{
+  const target=(VR.now&&VR.now.chId)||(VR.now&&VR.now.ch)||(VR.currentChannel&&VR.currentChannel.channelId);
+  if(target)loadChannel(target);
+});
+$('btnPlPlayAll').addEventListener('click',()=>{
+  if(!VR.currentPlaylist)return;
+  if(VR.queue&&VR.queue.length){
+    VR.queueIndex=0;
+    Music.playYt(VR.queue[0]);
+    renderPlaylistVideos();
+  }else if(VR.currentPlaylist.id){
+    Music.playYt({list:VR.currentPlaylist.id,t:VR.currentPlaylist.title||'Course Playlist'});
+  }
+});
+$('btnChPlaylists').addEventListener('click',()=>switchChannelTab('playlists'));
+$('btnChVideos').addEventListener('click',()=>switchChannelTab('videos'));
+$('btnYtWindow').addEventListener('click',openYTwin);
+$('btnYtWinNow').addEventListener('click',openYTwin);
+$('btnYtStop').addEventListener('click',()=>Music.stopAll());
+$('btnYtSaveNow').addEventListener('click',()=>{if(VR.now)toggleSave(VR.now)});
+$('btnYtRoom').addEventListener('click',openYtRoom);
+$('btnPaneYtShow').addEventListener('click',openYtRoom);
+$('btnPaneYtStop').addEventListener('click',()=>Music.stopAll());
+$('ytUrl').addEventListener('keydown',e=>{if(e.key!=='Enter')return;addFromLink($('ytUrl').value)});
+/* smart window escape: a playing/picked video beats the plain search page */
+function openYTwin(){
+  if(VR.now&&(VR.now.id||VR.now.list)){
+    const u=VR.now.id
+      ?'https://www.youtube.com/watch?v='+VR.now.id
+      :'https://www.youtube.com/playlist?list='+VR.now.list;
+    launchWindow({id:'ytwin',name:'Video — '+VR.now.t,url:u});
+  }else{
+    launchWindow({id:'ytw',name:'YouTube',url:'https://www.youtube.com/results?search_query='+encodeURIComponent($('inYtQuery').value.trim()||'')});
+  }
+}
+
+/* local files */
+$('btnPickFolder').addEventListener('click',()=>$('folderInput').click());
+$('folderInput').addEventListener('change',e=>{
+  const fs=Array.from(e.target.files||[]).filter(f=>/\.(mp3|wav|ogg|m4a|flac|opus|aac)$/i.test(f.name));
+  if(!fs.length){toast('No audio files found in that folder.');return}
+  pickedFiles=fs;Music.elIdx=-1;
+  const list=$('pickedList');list.innerHTML='';
+  fs.forEach((f,i)=>{
+    const b=document.createElement('button');b.className='picked';b.dataset.i=i;
+    b.innerHTML='<span class="te">♪</span><span>'+esc(f.name.replace(/\.[^.]+$/,''))+'</span>';
+    b.addEventListener('click',()=>Music.playLocal(i));
+    list.appendChild(b);
+  });
+  toast(fs.length+' track'+(fs.length===1?'':'s')+' found — tap one to play.');
+});
+
+/* lesson notes & scratchpad wiring */
+$('btnNotesBlock').addEventListener('click',openNotesScreen);
+$('btnNotesBreak').addEventListener('click',openNotesScreen);
+$('btnNotesHome').addEventListener('click',openNotesScreen);
+$('btnNotesBack').addEventListener('click',closeOvl);
+$('taLessonNotes').addEventListener('input',()=>{
+  if(!data.notes)data.notes={};
+  data.notes[notesSubject]=$('taLessonNotes').value;
+  save();
+});
+$('btnNotesCopy').addEventListener('click',()=>{
+  navigator.clipboard.writeText($('taLessonNotes').value)
+    .then(()=>toast('Notes copied to clipboard!'))
+    .catch(()=>toast('Could not copy notes.'));
+});
+$('btnNotesClear').addEventListener('click',()=>{
+  if(!confirm('Clear notes for "'+notesSubject+'"?'))return;
+  $('taLessonNotes').value='';
+  if(data.notes)data.notes[notesSubject]='';
+  save();
+  toast('Notes cleared.');
+});
+
+/* local server check & data migration */
+function checkMigrationHash(){
+  try{
+    if(location.hash.startsWith('#migrate=')){
+      const raw=decodeURIComponent(location.hash.slice(9));
+      const imported=JSON.parse(raw);
+      if(imported&&typeof imported==='object'){
+        data={...deep(DEFAULTS),...imported,settings:{...DEFAULTS.settings,...(imported.settings||{})}};
+        if(!data.notes)data.notes={};
+        save();
+        toast('✓ Workspace synced from local file!');
+      }
+      history.replaceState(null,'',location.pathname);
+    }
+  }catch(e){}
+}
+function checkLocalServer(){
+  if(location.protocol==='file:'){
+    fetch('http://127.0.0.1:8899/api/ping')
+      .then(r=>r.json())
+      .then(res=>{
+        if(res&&res.status==='ok'){
+          const b=$('localServerBanner');
+          if(b)b.style.display='flex';
+        }
+      }).catch(()=>{});
+  }
+}
+$('btnSwitchServer').addEventListener('click',()=>{
+  const state=encodeURIComponent(JSON.stringify(data));
+  window.location.href='http://127.0.0.1:8899/Focus%20Gate.html#migrate='+state;
+});
+$('btnCloseBanner').addEventListener('click',()=>{
+  $('localServerBanner').style.display='none';
+});
+
+/* ---------------- go ---------------- */
+checkMigrationHash();checkLocalServer();updateYtNotice();
+renderHome();renderYt();renderApps();videoNow(null);setPhase(PH.HOME);
+requestAnimationFrame(paint);
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "focus-gate",
+  "version": "1.0.0",
+  "description": "A science-backed, distraction-free local focus launcher & study workspace.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "focus",
+    "pomodoro",
+    "study",
+    "productivity",
+    "youtube",
+    "ambient-sounds",
+    "local-first",
+    "science-backed"
+  ],
+  "author": "superpolim9",
+  "license": "MIT"
+}

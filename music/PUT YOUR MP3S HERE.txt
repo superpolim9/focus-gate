@@ -1,0 +1,8 @@
+Drop your downloaded MP3s / WAVs here.
+
+In the app: open the player (bottom-right pill ▲) → "My music" → "Pick my music folder"
+→ choose this folder → every track appears. Tap a track to play; it keeps playing until
+you stop it, and it loops to the next one automatically.
+
+Tip: the built-in "Sounds" (Deep Space, Brown Noise, Pink Rain, brainwave tones) need
+no files at all — try those first.
