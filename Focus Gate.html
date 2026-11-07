@@ -822,14 +822,9 @@ const Music={
   /* --- youtube --- */
   playYt(item){
     this.stopAll();
-    if(location.protocol==='file:' && !(data.settings.ytBridge&&data.settings.ytBridge.trim())){
-      toast('💡 Local file mode: YouTube requires launching with Start Focus Gate.bat. Opening in companion window…');
-      this.curSource='yt';
-      videoNow(item);
-      openYTwin();
-      return;
-    }
-    const f=$('ytFrame');f.src=ytEmbed(item.id,item.list);$('ytWrap').style.display='block';
+    const f=$('ytFrame');
+    f.src=ytEmbed(item.id,item.list);
+    $('ytWrap').style.display='block';
     this.curSource='yt';
     this.labelPill('▶ '+item.t);
     videoNow(item);
@@ -1316,10 +1311,9 @@ function ytEmbed(v,list){
   if(br&&/^(https:\/\/)/.test(br)){
     return br+'/?'+(v?('yt='+v):('list='+list));
   }
-  const originParam=(location.protocol==='http:'||location.protocol==='https:')?'&origin='+encodeURIComponent(location.origin):'';
   return v
-    ?'https://www.youtube.com/embed/'+v+'?autoplay=1&enablejsapi=1&rel=0'+originParam
-    :'https://www.youtube.com/embed/videoseries?list='+list+'&autoplay=1&enablejsapi=1&rel=0'+originParam;
+    ?'https://www.youtube-nocookie.com/embed/'+v+'?autoplay=1&rel=0'
+    :'https://www.youtube-nocookie.com/embed/videoseries?list='+list+'&autoplay=1&rel=0';
 }
 function parseYt(url){
   url=String(url||'').trim();
@@ -1882,7 +1876,7 @@ function ytFail(msg){
     '<div class="ytr-fail"><button class="ghost" id="btnYtRetry">↻ Try search again</button>'+
     '<button class="ghost" id="btnYtOpenWin">⧉ Search youtube.com in a window</button></div>';
   $('btnYtRetry').addEventListener('click',()=>ytSearch($('inYtQuery').value));
-  $('btnYtOpenWin').addEventListener('click',()=>launchWindow({id:'ytw',name:'YouTube',url:'https://www.youtube.com/results?search_query='+encodeURIComponent($('inYtQuery').value||'')}));
+  $('btnYtOpenWin').addEventListener('click',openYTwin);
 }
 
 /* --- pasted links get real titles & keepers --- */
@@ -2020,9 +2014,21 @@ function launchWindow(app){
     L=Math.max(0,Math.floor((window.screen.availWidth-W)/2));
     T=Math.max(0,Math.floor((window.screen.availHeight-H)/2));
   }
-  const w=window.open(app.url,'fgapp-'+(app.id||app.name||'x'),'popup=yes,width='+W+',height='+H+',left='+L+',top='+T);
-  if(w){try{w.focus()}catch(e){}toast('“'+app.name+'” opened side-by-side — the workspace underneath keeps running.')}
-  else toast('The browser blocked the window — allow popups for this file, or force the embedded try.');
+  const safeId=('fg_'+(app.id||'win')).replace(/[^a-zA-Z0-9_]/g,'_');
+  let w=null;
+  try{
+    w=window.open(app.url,safeId,'popup=yes,width='+W+',height='+H+',left='+L+',top='+T);
+  }catch(e){}
+  if(!w){
+    // Popup was blocked by browser: fallback immediately to a standard tab
+    try{w=window.open(app.url,'_blank')}catch(e){}
+  }
+  if(w){
+    try{w.focus()}catch(e){}
+    toast('“'+(app.name||'Window')+'” opened — the workspace underneath keeps running.');
+  }else{
+    toast('The browser blocked the window — please allow popups for Focus Gate.');
+  }
 }
 function openAppFrame(app){
   RT.frameApp=app;
@@ -2114,14 +2120,19 @@ $('btnPaneYtStop').addEventListener('click',()=>Music.stopAll());
 $('ytUrl').addEventListener('keydown',e=>{if(e.key!=='Enter')return;addFromLink($('ytUrl').value)});
 /* smart window escape: a playing/picked video beats the plain search page */
 function openYTwin(){
+  let url='https://www.youtube.com/';
+  let name='YouTube';
   if(VR.now&&(VR.now.id||VR.now.list)){
-    const u=VR.now.id
+    url=VR.now.id
       ?'https://www.youtube.com/watch?v='+VR.now.id
       :'https://www.youtube.com/playlist?list='+VR.now.list;
-    launchWindow({id:'ytwin',name:'Video — '+VR.now.t,url:u});
-  }else{
-    launchWindow({id:'ytw',name:'YouTube',url:'https://www.youtube.com/results?search_query='+encodeURIComponent($('inYtQuery').value.trim()||'')});
+    name=VR.now.t||'YouTube Video';
+  }else if($('inYtQuery')&&$('inYtQuery').value.trim()){
+    const q=$('inYtQuery').value.trim();
+    url='https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+    name='Search: '+q;
   }
+  launchWindow({id:'ytwin',name:name,url:url});
 }
 
 /* local files */
@@ -2185,8 +2196,8 @@ function checkLocalServer(){
       .then(r=>r.json())
       .then(res=>{
         if(res&&res.status==='ok'){
-          const state=encodeURIComponent(JSON.stringify(data));
-          window.location.replace('http://localhost:8899/Focus%20Gate.html#migrate='+state);
+          const b=$('localServerBanner');
+          if(b)b.style.display='flex';
         }
       }).catch(()=>{});
   }

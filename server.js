@@ -29,10 +29,13 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
-  // Enable CORS so local file:// tests or fetches can communicate if needed
+  // Enable CORS and disable caching so workspace updates apply immediately
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
