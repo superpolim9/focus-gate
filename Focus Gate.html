@@ -501,7 +501,7 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
     </div>
     <div class="yt-right">
       <div class="yt-stage">
-        <div id="ytWrap" style="display:none"><iframe id="ytFrame" allow="autoplay; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation" title="YouTube player"></iframe></div>
+        <div id="ytWrap" style="display:none"><iframe id="ytFrame" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="YouTube player"></iframe></div>
         <div id="ytIdle">
           <svg width="54" height="54" viewBox="0 0 32 32"><circle cx="16" cy="16" r="5" fill="var(--accent)" opacity=".7"/><circle cx="16" cy="16" r="12" fill="none" stroke="var(--accent)" stroke-opacity=".25"/></svg>
           <div>Search on the left, tap a video — it plays inside this page.</div>
@@ -822,6 +822,13 @@ const Music={
   /* --- youtube --- */
   playYt(item){
     this.stopAll();
+    if(location.protocol==='file:' && !(data.settings.ytBridge&&data.settings.ytBridge.trim())){
+      toast('💡 Local file mode: YouTube requires launching with Start Focus Gate.bat. Opening in companion window…');
+      this.curSource='yt';
+      videoNow(item);
+      openYTwin();
+      return;
+    }
     const f=$('ytFrame');f.src=ytEmbed(item.id,item.list);$('ytWrap').style.display='block';
     this.curSource='yt';
     this.labelPill('▶ '+item.t);
@@ -1309,9 +1316,10 @@ function ytEmbed(v,list){
   if(br&&/^(https:\/\/)/.test(br)){
     return br+'/?'+(v?('yt='+v):('list='+list));
   }
+  const originParam=(location.protocol==='http:'||location.protocol==='https:')?'&origin='+encodeURIComponent(location.origin):'';
   return v
-    ?'https://www.youtube.com/embed/'+v+'?autoplay=1&rel=0'
-    :'https://www.youtube.com/embed/videoseries?list='+list+'&autoplay=1&rel=0';
+    ?'https://www.youtube.com/embed/'+v+'?autoplay=1&enablejsapi=1&rel=0'+originParam
+    :'https://www.youtube.com/embed/videoseries?list='+list+'&autoplay=1&enablejsapi=1&rel=0'+originParam;
 }
 function parseYt(url){
   url=String(url||'').trim();
@@ -2177,8 +2185,8 @@ function checkLocalServer(){
       .then(r=>r.json())
       .then(res=>{
         if(res&&res.status==='ok'){
-          const b=$('localServerBanner');
-          if(b)b.style.display='flex';
+          const state=encodeURIComponent(JSON.stringify(data));
+          window.location.replace('http://localhost:8899/Focus%20Gate.html#migrate='+state);
         }
       }).catch(()=>{});
   }

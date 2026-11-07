@@ -9,8 +9,7 @@ powershell -NoProfile -Command "(Get-NetTCPConnection -LocalPort 8899 -ErrorActi
 set /p PORT_ACTIVE=<"%temp%\fg_port.txt"
 del "%temp%\fg_port.txt" 2>nul
 
-if "%PORT_ACTIVE%"=="1" goto OPEN_BROWSER
-if "%PORT_ACTIVE%"=="2" goto OPEN_BROWSER
+if not "%PORT_ACTIVE%"=="0" if not "%PORT_ACTIVE%"=="" goto OPEN_BROWSER
 
 echo [Focus Gate] Starting local workspace server...
 
