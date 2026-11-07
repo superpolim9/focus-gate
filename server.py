@@ -39,6 +39,31 @@ class FocusGateHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'{"status":"ok","server":"Focus Gate (Python)"}')
             return
+        elif self.path == '/api/docs':
+            docs_dir = os.path.join(DIRECTORY, 'docs')
+            if not os.path.exists(docs_dir):
+                try: os.makedirs(docs_dir, exist_ok=True)
+                except Exception: pass
+            files = []
+            try:
+                for fname in os.listdir(docs_dir):
+                    fpath = os.path.join(docs_dir, fname)
+                    if os.path.isfile(fpath) and fname.lower().endswith(('.pdf', '.png', '.jpg', '.jpeg', '.webp', '.svg', '.gif', '.bmp')):
+                        ext = fname.rsplit('.', 1)[-1].lower()
+                        files.append({
+                            'name': fname,
+                            'type': 'pdf' if ext == 'pdf' else 'image',
+                            'ext': ext,
+                            'size': os.path.getsize(fpath),
+                            'url': '/docs/' + urllib.parse.quote(fname)
+                        })
+            except Exception:
+                pass
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'files': files}).encode('utf-8'))
+            return
         elif self.path.startswith('/api/yt-search?'):
             qs = parse_qs(urlparse(self.path).query)
             q = qs.get('q', [''])[0]

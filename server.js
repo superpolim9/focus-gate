@@ -24,7 +24,11 @@ const MIME_TYPES = {
   '.png':  'image/png',
   '.jpg':  'image/jpeg',
   '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif':  'image/gif',
+  '.bmp':  'image/bmp',
   '.svg':  'image/svg+xml',
+  '.pdf':  'application/pdf',
   '.ico':  'image/x-icon'
 };
 
@@ -50,6 +54,38 @@ const server = http.createServer((req, res) => {
   if (pathname === '/api/ping') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', server: 'Focus Gate', port: PORT }));
+    return;
+  }
+
+  // Workspace documents endpoint (lists PDFs and images in docs/ directory)
+  if (pathname === '/api/docs') {
+    const docsDir = path.join(ROOT_DIR, 'docs');
+    if (!fs.existsSync(docsDir)) {
+      try { fs.mkdirSync(docsDir, { recursive: true }); } catch (e) {}
+    }
+    fs.readdir(docsDir, { withFileTypes: true }, (err, entries) => {
+      if (err) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ files: [] }));
+        return;
+      }
+      const files = entries
+        .filter(e => e.isFile() && /\.(pdf|png|jpe?g|webp|svg|gif|bmp)$/i.test(e.name))
+        .map(e => {
+          let size = 0;
+          try { size = fs.statSync(path.join(docsDir, e.name)).size; } catch (err) {}
+          const ext = path.extname(e.name).toLowerCase().replace('.', '');
+          return {
+            name: e.name,
+            type: ext === 'pdf' ? 'pdf' : 'image',
+            ext: ext,
+            size: size,
+            url: '/docs/' + encodeURIComponent(e.name)
+          };
+        });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ files }));
+    });
     return;
   }
 

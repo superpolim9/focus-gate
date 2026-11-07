@@ -86,7 +86,22 @@ Focus Gate is engineered around cognitive and behavioral neuroscience:
 - **Auto-Saved Per Subject:** Notes for *"Linear Algebra"* or *"Machine Learning"* stay organized and load automatically whenever you choose that subject.
 - **1-Click Copy:** Instant clipboard export.
 
-### 4. 🎧 Built-In Audio Engine
+### 4. 📄 Study Documents & Images Viewer
+- **In-Workspace PDFs:** Open course slides, textbooks, problem sets, and research papers directly inside Focus Gate without switching windows or interrupting your timer.
+- **High-Resolution Image Viewer:** Inspect diagrams, formula cheatsheets, and mindmaps with smooth zoom (+/- and mouse wheel), pan/drag, 90° rotation, and 100% actual size.
+- **🌓 Invert / Dark Mode Filter:** Invert blinding white scanned textbook pages and math sheets into soothing high-contrast dark diagrams with 1 click.
+- **Study Tray & Instant Switching:** Keep multiple documents open in a sidebar tray to jump between lecture slides and exercise sheets in a flash.
+- **Drag & Drop:** Simply drag any `.pdf` or image from your desktop anywhere into Focus Gate to view it immediately. Or place files into the `docs/` folder for automatic workspace indexing.
+
+### 5. 🌿 Active Guided Neuro-Rest Break (Science-Backed Recovery)
+- **Not Just a Countdown:** Replaces passive waiting with a structured 4-phase biological restoration protocol designed by cognitive neuroscientists to reset dopamine, clear optic fatigue, and prepare for the next block:
+  1. **Phase 1: Optic Defocus (Eyes)** — Relaxes ciliary muscle tension with 20-20-20 distance vision and slow blinks to drop sympathetic arousal.
+  2. **Phase 2: Autonomic Reset (Breath)** — Guided physiological sighs (2 deep inhales + 1 long exhale) with real-time breathing circle animation.
+  3. **Phase 3: Postural Decompression & Hydration (Body)** — Guided shoulder rolls, overhead spinal stretches, and water intake to restore prefrontal oxygenation.
+  4. **Phase 4: NSDR Consolidation (Mind)** — Non-sleep deep rest with zero sensory input, allowing synaptic memory replay to consolidate newly learned material.
+- **Interactive Checklist & Sound Cues:** Gentle chimes mark phase transitions so you can close your eyes or look out a window without checking the screen.
+
+### 6. 🎧 Built-In Audio Engine
 - **Synthesized Live in Browser (100% Offline, Zero Downloads):**
   - **Deep Space:** Dark cinematic evolving ambient drone (Interstellar style)
   - **Brown Noise:** Warm, low-frequency acoustic masking for deep reading
@@ -94,7 +109,7 @@ Focus Gate is engineered around cognitive and behavioral neuroscience:
   - **Binaural Beats:** 40 Hz Gamma (peak focus), 16 Hz Beta, and 10 Hz Alpha modes (for headphones)
 - **Offline Local Audio:** Drop any `.mp3`, `.wav`, or `.flac` files into the `music/` folder for instant local playback.
 
-### 5. 📊 Journal & Habit Analytics
+### 7. 📊 Journal & Habit Analytics
 - Daily focus minutes, streaks, and subject breakdown.
 - Session logs with intentions, ratings, and "where I left off" threads.
 - 1-click export to `.json` or `.csv`.
@@ -122,6 +137,10 @@ focus-gate/
 ├── start.sh               # 1-click macOS / Linux launcher
 ├── package.json           # Optional npm start script
 ├── LICENSE                # MIT License
+├── docs/                  # Study PDFs, lecture slides, and diagram images
+│   ├── README.md
+│   ├── Sample_Chapter_Notes.pdf
+│   └── mechanics_diagram.svg
 └── music/                 # Optional folder for your local MP3/audio files
     └── README.md
 ```

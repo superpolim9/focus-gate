@@ -280,10 +280,80 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
   background:radial-gradient(1200px 800px at 50% -10%, #0d1220 0%, var(--bg) 60%)}
 .overlay.on{display:flex;animation:fade .4s ease}
 
+/* ---------- docs & images overlay ---------- */
+#scr-docs{overflow:hidden}
+.doc-container{flex:1;display:flex;padding:70px 24px 20px;gap:18px;min-height:0;overflow:hidden}
+.doc-sidebar{width:260px;flex:none;display:flex;flex-direction:column;gap:10px;border-right:1px solid var(--line);padding-right:16px;min-height:0}
+.doc-sidebar-header{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;letter-spacing:1.5px;color:var(--faint);font-weight:600}
+.doc-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;min-height:60px}
+.doc-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;font-size:12.5px;color:var(--dim);cursor:pointer;transition:.15s;text-align:left;position:relative}
+.doc-item:hover{border-color:rgba(255,255,255,.25);color:var(--ink)}
+.doc-item.active{border-color:var(--accent);color:var(--ink);background:rgba(255,201,120,.08)}
+.doc-item .doc-ic{font-size:18px;flex:none}
+.doc-item .doc-info{flex:1;min-width:0;display:flex;flex-direction:column}
+.doc-item .doc-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-item .doc-meta{font-size:11px;color:var(--faint)}
+.doc-item .doc-del{color:var(--faint);font-size:12px;opacity:0;transition:.15s;padding:2px 4px}
+.doc-item:hover .doc-del{opacity:1}
+.doc-item .doc-del:hover{color:var(--bad)}
+.doc-dropzone{border:1.5px dashed var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--dim);cursor:pointer;text-align:center;transition:.2s}
+.doc-dropzone:hover,.doc-dropzone.dragover{border-color:var(--accent);color:var(--accent);background:rgba(255,201,120,.05)}
+.doc-stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;background:var(--panel-solid);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.doc-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px;text-align:center}
+.doc-view-pdf{flex:1;width:100%;height:100%;display:none;min-height:0}
+#docPdfFrame{width:100%;height:100%;border:0;display:block;background:#202225}
+.doc-view-img{flex:1;width:100%;height:100%;display:none;flex-direction:column;min-height:0;position:relative;overflow:hidden}
+.doc-img-toolbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.88);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:999px;padding:4px 10px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.doc-img-viewport{flex:1;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:grab;user-select:none}
+.doc-img-viewport:active{cursor:grabbing}
+#docImgEl{max-width:96%;max-height:96%;object-fit:contain;transition:transform .12s ease-out, filter .2s ease;pointer-events:none}
+#docImgEl.inverted{filter:invert(0.92) hue-rotate(180deg) contrast(1.1)}
+
+/* ---------- active guided break (neuro-rest) ---------- */
+#scr-break{user-select:none;background:radial-gradient(1200px 800px at 50% 0%, #0a101f 0%, var(--bg) 70%)}
+.break-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;max-width:880px;width:100%;margin:0 auto;padding:70px 20px 30px;min-height:0}
+.break-timeline{display:flex;gap:8px;max-width:760px;width:100%;overflow-x:auto;padding:4px}
+.break-step-pill{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background:var(--panel);border:1px solid var(--line);border-radius:999px;font-size:12px;color:var(--dim);cursor:pointer;transition:.2s;white-space:nowrap}
+.break-step-pill:hover{border-color:rgba(255,255,255,.25);color:var(--ink)}
+.break-step-pill.active{border-color:var(--accent);color:var(--accent);background:rgba(255,201,120,.09);font-weight:600}
+.break-step-pill.done{color:var(--good);border-color:rgba(143,227,176,.3)}
+.break-card{width:100%;max-width:680px;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:26px 30px;display:flex;flex-direction:column;align-items:center;gap:18px;box-shadow:0 20px 60px rgba(0,0,0,.45);position:relative;overflow:hidden}
+.break-header-row{display:flex;justify-content:space-between;align-items:center;width:100%}
+.break-badge{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);background:rgba(255,201,120,.1);padding:4px 10px;border-radius:999px;font-weight:600}
+.break-timer-sm{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink);letter-spacing:1px}
+.break-stage-visual{width:100%;height:130px;display:flex;align-items:center;justify-content:center;position:relative}
+.break-optic-visual{width:100%;max-width:320px;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.optic-horizon{width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(158,216,255,.6),transparent);position:relative}
+.optic-wave{position:absolute;width:180px;height:65px;border:1.5px solid rgba(158,216,255,.35);border-radius:50%;animation:opticPulse 4s ease-in-out infinite}
+.optic-wave:nth-child(2){animation-delay:1.5s;border-color:rgba(255,201,120,.35)}
+@keyframes opticPulse{0%,100%{transform:scale(.7);opacity:.3}50%{transform:scale(1.2);opacity:.9}}
+.break-breath-circle{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 38% 32%, rgba(158,216,255,.35), rgba(158,216,255,.07) 65%, transparent);border:1.5px solid rgba(158,216,255,.5);display:flex;align-items:center;justify-content:center;transition:transform .4s ease, border-color .4s ease;box-shadow:0 0 30px rgba(158,216,255,.15)}
+.break-breath-text{font-size:12.5px;color:var(--air);font-weight:500;text-align:center;padding:6px;line-height:1.3}
+.break-stretch-visual{font-size:52px;animation:stretchBounce 2.2s ease-in-out infinite}
+@keyframes stretchBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.break-nebula{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle, rgba(143,227,176,.25) 0%, rgba(255,201,120,.15) 50%, transparent 70%);filter:blur(8px);animation:nebulaGlow 4s ease-in-out infinite}
+@keyframes nebulaGlow{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.25);opacity:.95}}
+.break-title{font-size:19px;font-weight:600;color:var(--ink);text-align:center}
+.break-instruction{font-size:14px;color:var(--dim);line-height:1.6;text-align:center;max-width:540px}
+.break-checklist{display:flex;flex-direction:column;gap:7px;width:100%;max-width:440px}
+.break-check-item{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--dim);background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;transition:.15s}
+.break-check-item:hover{border-color:rgba(255,255,255,.25)}
+.break-check-item.done{color:var(--ink);border-color:rgba(143,227,176,.35);background:rgba(143,227,176,.05)}
+.break-check-box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.break-check-item.done .break-check-box{border-color:var(--good);background:var(--good);color:#06080c;font-weight:700}
+.break-science-note{font-size:12px;color:var(--accent);background:rgba(255,201,120,.06);border:1px solid rgba(255,201,120,.2);border-radius:10px;padding:8px 14px;text-align:center;line-height:1.5;max-width:540px}
+.break-controls{display:flex;gap:10px;align-items:center;margin-top:2px}
+
+/* global drag drop toast */
+#globalDropZone{position:fixed;inset:0;background:rgba(6,8,12,.88);backdrop-filter:blur(10px);border:3px dashed var(--accent);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;pointer-events:none}
+#globalDropZone.on{display:flex}
+
 @media (max-width:980px){
   .yt-grid{flex-direction:column;overflow-y:auto;gap:16px;padding:78px 20px 20px}
   .yt-left,.yt-right{flex:none;width:100%}
   .ytres{flex:none;max-height:34vh}
+  .doc-container{flex-direction:column;padding:70px 16px 16px}
+  .doc-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--line);padding-bottom:12px;max-height:160px}
 }
 </style>
 </head>
@@ -304,6 +374,7 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
     </div>
     <div style="display:flex;gap:10px">
       <button class="ghost" id="btnStats">Journal</button>
+      <button class="ghost" id="btnDocsHome" title="Study documents — PDFs, slides, images">📄 Docs</button>
       <button class="ghost" id="btnApps">Apps</button>
       <button class="ghost" id="btnNotesHome">Notes</button>
       <button class="ghost" id="btnSettings">Settings</button>
@@ -363,6 +434,7 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
     <div class="subject-line" id="blockSubject"></div>
     <div style="display:flex;gap:8px">
       <button class="ghost" id="btnVideoBlock" title="Video room — pick a lesson video, the timer keeps running">▶ Video</button>
+      <button class="ghost" id="btnDocsBlock" title="Study documents — PDFs, slides, images">📄 Docs</button>
       <button class="ghost" id="btnAppsBlock" title="Work apps — ChatGPT, Desmos, Gmail… the timer keeps running">⚡ Apps</button>
       <button class="ghost" id="btnNotesBlock" title="Lesson scratchpad — write notes or paste exercise steps">📝 Notes</button>
       <button class="ghost" id="btnFull">Fullscreen</button>
@@ -381,13 +453,67 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
   </div>
 </section>
 
-<!-- ============ BREAK ============ -->
+<!-- ============ BREAK (ACTIVE GUIDED NEURO-REST) ============ -->
 <section class="screen" id="scr-break">
-  <div class="topbar"><div class="stage-tag">break</div><div style="display:flex;gap:8px"><button class="ghost" id="btnVideoBreak" title="Watch a video during the break">▶ Video</button><button class="ghost" id="btnAppsBreak" title="Check mail / chat / calendar — music keeps playing">⚡ Apps</button><button class="ghost" id="btnNotesBreak" title="Review lesson notes">📝 Notes</button><button class="ghost" id="btnSkipBreak">Skip break →</button></div></div>
-  <div class="center">
-    <div class="stage-tag">rest your eyes</div>
-    <div class="timer" id="breakTimer">05:00</div>
-    <div class="block-note dim">Look at something far away. Water. Long, slow exhales.</div>
+  <div class="topbar">
+    <div class="stage-tag" id="breakStageTag">break · neuro reset</div>
+    <div style="display:flex;gap:8px">
+      <button class="ghost" id="btnVideoBreak" title="Watch a video during the break">▶ Video</button>
+      <button class="ghost" id="btnDocsBreak" title="Study documents — PDFs, slides, images">📄 Docs</button>
+      <button class="ghost" id="btnAppsBreak" title="Check mail / chat / calendar — music keeps playing">⚡ Apps</button>
+      <button class="ghost" id="btnNotesBreak" title="Review lesson notes">📝 Notes</button>
+      <button class="ghost" id="btnSkipBreak">Skip break →</button>
+    </div>
+  </div>
+  <div class="break-wrap">
+    <!-- Rest timeline pills -->
+    <div class="break-timeline" id="breakTimeline">
+      <button class="break-step-pill active" data-bstep="0"><span>👁️</span> 1. Optic Defocus</button>
+      <button class="break-step-pill" data-bstep="1"><span>🌬️</span> 2. Autonomic Reset</button>
+      <button class="break-step-pill" data-bstep="2"><span>🧘</span> 3. Decompress &amp; Water</button>
+      <button class="break-step-pill" data-bstep="3"><span>🧠</span> 4. Brain Rest</button>
+    </div>
+
+    <!-- Active rest guidance card -->
+    <div class="break-card">
+      <div class="break-header-row">
+        <span class="break-badge" id="breakStepBadge">PHASE 1 / 4 · OPTIC DEFOCUS</span>
+        <div class="break-timer-sm" id="breakTimer">05:00</div>
+      </div>
+
+      <!-- Animated Stage Visuals -->
+      <div class="break-stage-visual" id="breakVisualArea">
+        <!-- Visual 1: Optic horizon -->
+        <div class="break-optic-visual" id="visOptic">
+          <div class="optic-horizon"></div>
+          <div class="optic-wave"></div>
+          <div class="optic-wave"></div>
+        </div>
+        <!-- Visual 2: Physiological sigh breath circle -->
+        <div class="break-breath-circle" id="visBreath" style="display:none">
+          <div class="break-breath-text" id="breakBreathText">Deep inhale<br>through nose</div>
+        </div>
+        <!-- Visual 3: Physical stretch & water -->
+        <div class="break-stretch-visual" id="visStretch" style="display:none">💧 🧘</div>
+        <!-- Visual 4: Neural consolidation nebula -->
+        <div class="break-nebula" id="visNebula" style="display:none"></div>
+      </div>
+
+      <div class="break-title" id="breakTitle">Optic Defocus &amp; Eye Decoupling</div>
+      <div class="break-instruction" id="breakInstruction">Look at least 20 feet away or gaze out a window. Soften your eyes into panoramic vision.</div>
+
+      <!-- Interactive Micro-Checklist -->
+      <div class="break-checklist" id="breakChecklist"></div>
+
+      <!-- Neuroscience Fact Note -->
+      <div class="break-science-note" id="breakScienceNote">Dr. Huberman / Stanford: Relaxes ciliary muscle contraction, dials down sympathetic arousal, and restores retinal dopamine.</div>
+
+      <!-- Navigation buttons -->
+      <div class="break-controls">
+        <button class="ghost tiny" id="btnBreakPrev">⟵ Prev activity</button>
+        <button class="ghost tiny" id="btnBreakNext" style="color:var(--accent)">Next activity ⟶</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -571,6 +697,74 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px}
     <textarea id="taLessonNotes" placeholder="Jot down notes, exercise problems, formulas, or ChatGPT answers here...&#10;&#10;Auto-saved specifically for this subject."></textarea>
   </div>
 </section>
+
+<!-- ============ STUDY DOCS & IMAGES VIEWER ============ -->
+<section class="overlay" id="scr-docs">
+  <div class="topbar">
+    <button class="ghost" id="btnDocsBack">← Back</button>
+    <div class="ritual-title" id="docViewerTitle">Study Documents &amp; Images</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="ghost" id="btnDocPick" title="Open PDF or Image from device">📁 Open file…</button>
+      <button class="ghost" id="btnDocInvert" title="Toggle dark mode for bright white documents" style="display:none">🌓 Invert</button>
+      <button class="ghost" id="btnDocRotate" title="Rotate image 90°" style="display:none">⟳ Rotate</button>
+      <button class="ghost" id="btnDocWindow" title="Open in side companion window" style="display:none">⧉ Window</button>
+      <button class="ghost" id="btnDocCloseCurrent" title="Close current document" style="display:none">✕</button>
+    </div>
+  </div>
+  <div class="doc-container">
+    <div class="doc-sidebar">
+      <div class="doc-sidebar-header">
+        <span>STUDY TRAY</span>
+        <button class="ghost tiny" id="btnDocSidebarAdd" style="padding:2px 8px;font-size:11px">+ Add</button>
+      </div>
+      <div class="doc-list" id="docList"></div>
+      <div class="doc-dropzone" id="docDropzone">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <span style="font-weight:600">Drop PDF or image</span>
+        <span class="tiny faint">or tap to browse</span>
+      </div>
+      <input type="file" id="docFileInput" accept=".pdf,image/png,image/jpeg,image/webp,image/svg+xml,image/gif,image/bmp" multiple style="display:none">
+    </div>
+    <div class="doc-stage">
+      <!-- Empty State -->
+      <div class="doc-empty" id="docEmpty">
+        <div style="font-size:48px;margin-bottom:4px">📄</div>
+        <h3 style="font-size:18px;font-weight:600;color:var(--ink)">Study PDF &amp; Image Viewer</h3>
+        <p class="dim tiny" style="max-width:400px;line-height:1.7">Read lecture slides, math problem sets, textbooks, and formula sheets directly inside Focus Gate — your focus timer and sounds never stop.</p>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="btn primary" id="btnDocEmptyOpen">Choose PDF or Image</button>
+        </div>
+        <div class="faint tiny" style="margin-top:10px">Supports .pdf, .png, .jpg, .webp, .svg · Drag &amp; drop anywhere into Focus Gate</div>
+      </div>
+      <!-- PDF View -->
+      <div class="doc-view-pdf" id="docViewPdf">
+        <iframe id="docPdfFrame" allow="fullscreen" referrerpolicy="no-referrer" title="PDF Reader"></iframe>
+      </div>
+      <!-- Image View -->
+      <div class="doc-view-img" id="docViewImg">
+        <div class="doc-img-toolbar">
+          <button class="ghost tiny" id="btnImgZoomOut" title="Zoom out">-</button>
+          <span id="lblImgZoom" class="tiny" style="font-family:var(--mono);min-width:46px;text-align:center">100%</span>
+          <button class="ghost tiny" id="btnImgZoomIn" title="Zoom in">+</button>
+          <button class="ghost tiny" id="btnImgFit" title="Fit to window">Fit</button>
+          <button class="ghost tiny" id="btnImgActual" title="100% size">1:1</button>
+          <button class="ghost tiny" id="btnImgInvert" title="Dark mode invert">🌓 Invert</button>
+          <button class="ghost tiny" id="btnImgRotate" title="Rotate 90°">⟳ Rotate</button>
+        </div>
+        <div class="doc-img-viewport" id="docImgViewport">
+          <img id="docImgEl" alt="" src="" draggable="false">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Global drag & drop indicator -->
+<div id="globalDropZone">
+  <div style="font-size:48px">📄</div>
+  <div style="font-size:20px;font-weight:600;color:var(--accent)">Drop PDF or Image into Focus Gate</div>
+  <div class="dim tiny">Opens instantly inside your workspace</div>
+</div>
 <div id="backdrop"><div id="modalBox"></div></div>
 <div id="toast"></div>
 
@@ -631,8 +825,8 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const DAY=86400000;
 const RING_C=992.7;      /* 2π×158 */
 const POINT_C=452.4;     /* 2π×72 */
-const PH={HOME:'home',POINT:'point',BREATH:'breath',BLOCK:'block',BREAK:'break',WRAP:'wrap',STATS:'stats',YT:'yt',APPS:'apps',APPFRAME:'appframe',NOTES:'notes'};
-const SCREENS={home:'scr-home',point:'scr-point',breath:'scr-breath',block:'scr-block',break:'scr-break',wrap:'scr-wrap',stats:'scr-stats',yt:'scr-yt',apps:'scr-apps',appframe:'scr-app',notes:'scr-notes'};
+const PH={HOME:'home',POINT:'point',BREATH:'breath',BLOCK:'block',BREAK:'break',WRAP:'wrap',STATS:'stats',YT:'yt',APPS:'apps',APPFRAME:'appframe',NOTES:'notes',DOCS:'docs'};
+const SCREENS={home:'scr-home',point:'scr-point',breath:'scr-breath',block:'scr-block',break:'scr-break',wrap:'scr-wrap',stats:'scr-stats',yt:'scr-yt',apps:'scr-apps',appframe:'scr-app',notes:'scr-notes',docs:'scr-docs'};
 
 /* starter work-apps: these sites all refuse to be embedded (X-Frame-Options), so they
    open as real "work windows" beside Focus Gate — your logins live in the browser profile.
@@ -858,6 +1052,18 @@ function chime(){
     });
   }catch(e){}
 }
+function softChime(){
+  if(!data.settings.chime)return;
+  try{
+    Music.unlock();const c=Music.ctx;if(!c)return;const t=c.currentTime;
+    [440,659.25].forEach((f,i)=>{
+      const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;
+      const st=t+i*0.08;
+      g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(0.08,st+0.04);g.gain.exponentialRampToValueAtTime(0.0001,st+1.8);
+      o.connect(g);g.connect(Music.master);o.start(st);o.stop(st+2.0);
+    });
+  }catch(e){}
+}
 function notify(body){
   if(!data.settings.notifications)return;
   try{if(window.Notification&&Notification.permission==='granted')new Notification('Focus Gate',{body})}catch(e){}
@@ -1013,11 +1219,179 @@ function finishBlock(completed){
   RT.ses.blocks.push({kind:RT.block.kind,minutes:RT.block.minutes,start:RT.block.start,
     end:completed?RT.block.start+RT.block.minutes*60000:Date.now(),completed:!!completed});
 }
+/* =====================================================================
+   ACTIVE GUIDED NEURO-REST (SCIENCE-BACKED BREAK EXPERIENCE)
+   ===================================================================== */
+const BREAK_STAGES = [
+  {
+    id: 'optic',
+    name: 'Optic Defocus',
+    tag: 'PHASE 1 / 4 · OPTIC DEFOCUS & EYE RELIEF',
+    icon: '👁️',
+    pct: 0.20,
+    title: 'Optic Defocus & Eye Decoupling',
+    prompt: 'Look at least 20 feet away or gaze out a window. Soften your eyes into panoramic vision.',
+    science: 'Dr. Andrew Huberman / Stanford: Relaxes tonic ciliary muscle contraction from screen focus, shifts autonomic tone out of sympathetic alertness, and restores retinal dopamine.',
+    checks: [
+      'Look 20+ feet away or gaze out of a window',
+      'Soften gaze into panoramic vision (notice side walls without moving eyes)',
+      'Slowly blink 10 times to re-lubricate your corneas'
+    ]
+  },
+  {
+    id: 'sigh',
+    name: 'Autonomic Reset',
+    tag: 'PHASE 2 / 4 · PHYSIOLOGICAL SIGHS',
+    icon: '🌬️',
+    pct: 0.25,
+    title: 'Physiological Sighs (Autonomic Reset)',
+    prompt: 'Two quick inhales through the nose, then one long, slow, extended exhale through the mouth.',
+    science: 'Fastest biological tool discovered to offload excess carbon dioxide, reinflate collapsed pulmonary alveoli, and activate the calming parasympathetic vagus nerve.',
+    checks: [
+      'Inhale deeply through your nose (2 seconds)',
+      'Sip in a quick top-off burst of air at the very top (1 second)',
+      'Long, slow, relaxed mouth exhale (5 to 6 seconds)'
+    ]
+  },
+  {
+    id: 'stretch',
+    name: 'Decompress & Water',
+    tag: 'PHASE 3 / 4 · POSTURE & HYDRATION',
+    icon: '🧘',
+    pct: 0.30,
+    title: 'Postural Decompression & Hydration',
+    prompt: 'Stand up. Roll shoulders backwards 5 times, reach both arms overhead, and drink a glass of water.',
+    science: 'Prolonged sitting causes venous blood pooling in legs and cuts prefrontal cortex oxygenation by up to 15%. Drinking water re-hydrates brain glial cells and restores mental stamina.',
+    checks: [
+      'Stand up out of your chair',
+      'Roll shoulders back 5 times & reach both arms overhead',
+      'Drink a full glass of cool water'
+    ]
+  },
+  {
+    id: 'nsdr',
+    name: 'Brain Rest',
+    tag: 'PHASE 4 / 4 · NSDR CONSOLIDATION',
+    icon: '🧠',
+    pct: 0.25,
+    title: 'NSDR · Non-Sleep Deep Rest & Synaptic Consolidation',
+    prompt: 'Close your eyes. Zero inputs. Let your mind wander freely in total mental silence.',
+    science: 'Offline rest is when memory consolidation occurs — neural replay stabilizes newly learned pathways at 10x-20x speed. Checking phones or reading disrupts this consolidation.',
+    checks: [
+      'Close your eyes or rest in dim lighting',
+      'Zero sensory inputs — no phone, no reading, no social media',
+      'Let thoughts float by without grabbing onto any of them'
+    ]
+  }
+];
+
+function initBreakExperience(){
+  RT.breakStageIndex = 0;
+  RT.breakCheckState = {};
+  setBreakStage(0, false);
+}
+
+function setBreakStage(idx, isManualJump){
+  if(idx < 0) idx = 0;
+  if(idx >= BREAK_STAGES.length) idx = BREAK_STAGES.length - 1;
+  const stage = BREAK_STAGES[idx];
+  RT.breakStageIndex = idx;
+  
+  // Update timeline pills
+  const pills = document.querySelectorAll('.break-step-pill');
+  pills.forEach((p, i) => {
+    p.classList.toggle('active', i === idx);
+    p.classList.toggle('done', i < idx);
+  });
+  
+  // Update card content
+  $('breakStepBadge').textContent = stage.tag;
+  $('breakTitle').textContent = stage.title;
+  $('breakInstruction').textContent = stage.prompt;
+  $('breakScienceNote').textContent = stage.science;
+  
+  // Show active visual
+  $('visOptic').style.display = stage.id === 'optic' ? 'flex' : 'none';
+  $('visBreath').style.display = stage.id === 'sigh' ? 'flex' : 'none';
+  $('visStretch').style.display = stage.id === 'stretch' ? 'flex' : 'none';
+  $('visNebula').style.display = stage.id === 'nsdr' ? 'flex' : 'none';
+  
+  // Render checklist
+  const cl = $('breakChecklist');
+  cl.innerHTML = '';
+  stage.checks.forEach((chk, ci) => {
+    const key = stage.id + '_' + ci;
+    const isDone = !!RT.breakCheckState[key];
+    const item = document.createElement('div');
+    item.className = 'break-check-item' + (isDone ? ' done' : '');
+    item.innerHTML = '<div class="break-check-box">' + (isDone ? '✓' : '') + '</div><span>' + esc(chk) + '</span>';
+    item.addEventListener('click', () => {
+      RT.breakCheckState[key] = !RT.breakCheckState[key];
+      item.classList.toggle('done', RT.breakCheckState[key]);
+      item.querySelector('.break-check-box').textContent = RT.breakCheckState[key] ? '✓' : '';
+    });
+    cl.appendChild(item);
+  });
+  
+  if(isManualJump) softChime();
+}
+
+function updateBreakPhase(rem, total){
+  if(total <= 0) return;
+  const elapsed = total - rem;
+  const frac = Math.max(0, Math.min(1, elapsed / total));
+  
+  // Determine current stage index based on cumulative percentage
+  let cum = 0, currentIdx = 0;
+  for(let i = 0; i < BREAK_STAGES.length; i++){
+    cum += BREAK_STAGES[i].pct;
+    if(frac < cum || i === BREAK_STAGES.length - 1){
+      currentIdx = i;
+      break;
+    }
+  }
+  
+  if(currentIdx !== RT.breakStageIndex){
+    softChime();
+    setBreakStage(currentIdx, false);
+  }
+  
+  // If in physiological sigh breath stage, animate breathing circle smoothly!
+  if(BREAK_STAGES[RT.breakStageIndex].id === 'sigh'){
+    const sighCycle = (elapsed / 1000) % 8; // 8-second sigh cycle
+    const circle = $('visBreath');
+    const btext = $('breakBreathText');
+    if(sighCycle < 2.2){
+      // Inhale 1 (deep)
+      const p = sighCycle / 2.2;
+      const s = 1.0 + p * 0.25;
+      circle.style.transform = `scale(${s})`;
+      circle.style.borderColor = 'rgba(158,216,255,.7)';
+      btext.innerHTML = 'Deep inhale<br><span style="font-size:11px;opacity:.8">through nose (1/2)</span>';
+    }else if(sighCycle < 3.2){
+      // Inhale 2 (top-off burst)
+      const p = (sighCycle - 2.2) / 1.0;
+      const s = 1.25 + p * 0.2;
+      circle.style.transform = `scale(${s})`;
+      circle.style.borderColor = 'rgba(255,201,120,.95)';
+      btext.innerHTML = '<b>Top-off inhale!</b><br><span style="font-size:11px;color:var(--accent)">sip extra air (2/2)</span>';
+    }else{
+      // Exhale (long & slow)
+      const p = (sighCycle - 3.2) / 4.8;
+      const s = 1.45 - p * 0.55;
+      circle.style.transform = `scale(${s})`;
+      circle.style.borderColor = 'rgba(158,216,255,.3)';
+      btext.innerHTML = 'Long, slow exhale<br><span style="font-size:11px;opacity:.8">through mouth…</span>';
+    }
+  }
+}
+
 function startBreak(minutes){
   if(RT.block&&!RT.block.recorded)finishBlock(true);
   RT.breakDone=false;RT.breakEnd=Date.now()+minutes*60000;RT.breakTotal=minutes*60000;
   setPhase(PH.BREAK);
   $('breakTimer').textContent=fmtClock(minutes*60000);
+  initBreakExperience();
   requestAnimationFrame(paint);
 }
 function breakTick(now){
@@ -1031,6 +1405,7 @@ function breakTick(now){
     return;
   }
   $('breakTimer').textContent=fmtClock(rem);
+  updateBreakPhase(rem, total);
 }
 
 /* ---------------- choice modal ---------------- */
@@ -2174,6 +2549,262 @@ $('btnNotesClear').addEventListener('click',()=>{
   toast('Notes cleared.');
 });
 
+/* ---------------- guided break listeners ---------------- */
+$('btnBreakPrev').addEventListener('click',()=>setBreakStage(RT.breakStageIndex-1,true));
+$('btnBreakNext').addEventListener('click',()=>setBreakStage(RT.breakStageIndex+1,true));
+document.querySelectorAll('.break-step-pill').forEach(btn=>{
+  btn.addEventListener('click',()=>setBreakStage(+btn.dataset.bstep,true));
+});
+
+/* =====================================================================
+   STUDY DOCUMENTS & IMAGES VIEWER (PDFs, SLIDES, CHEATSHEETS, FORMULAS)
+   ===================================================================== */
+const DOCS={
+  items:[],
+  activeId:null,
+  zoom:1,
+  rotation:0,
+  inverted:false,
+  panX:0,
+  panY:0,
+  isDragging:false,
+  dragStartX:0,
+  dragStartY:0
+};
+
+function openDocsScreen(){
+  openOvl(PH.DOCS);
+  if(!DOCS.activeId && DOCS.items.length){
+    selectDoc(DOCS.items[0].id);
+  }
+}
+
+function addDocFromFile(file){
+  if(!file)return null;
+  const isPdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name);
+  const isImg=file.type.startsWith('image/')||/\.(png|jpe?g|webp|svg|gif|bmp)$/i.test(file.name);
+  if(!isPdf&&!isImg){
+    toast('Please select a PDF document or image file.');
+    return null;
+  }
+  const url=URL.createObjectURL(file);
+  const doc={
+    id:'doc_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    name:file.name,
+    type:isPdf?'pdf':'image',
+    size:file.size,
+    url:url,
+    isBlob:true,
+    file:file,
+    time:Date.now()
+  };
+  DOCS.items.unshift(doc);
+  renderDocList();
+  selectDoc(doc.id);
+  toast('✓ Loaded '+(isPdf?'PDF: ':'Image: ')+doc.name);
+  return doc;
+}
+
+function selectDoc(id){
+  const doc=DOCS.items.find(d=>d.id===id);
+  if(!doc)return;
+  DOCS.activeId=id;
+  DOCS.zoom=1;
+  DOCS.rotation=0;
+  DOCS.panX=0;
+  DOCS.panY=0;
+  
+  $('docEmpty').style.display='none';
+  $('docViewerTitle').textContent=doc.name;
+  $('btnDocInvert').style.display=doc.type==='image'?'inline-flex':'none';
+  $('btnDocRotate').style.display=doc.type==='image'?'inline-flex':'none';
+  $('btnDocWindow').style.display='inline-flex';
+  $('btnDocCloseCurrent').style.display='inline-flex';
+  
+  if(doc.type==='pdf'){
+    $('docViewImg').style.display='none';
+    $('docViewPdf').style.display='block';
+    $('docPdfFrame').src=doc.url;
+  }else{
+    $('docViewPdf').style.display='none';
+    $('docViewImg').style.display='flex';
+    const img=$('docImgEl');
+    img.src=doc.url;
+    updateImgTransform();
+  }
+  renderDocList();
+}
+
+function closeDoc(id,e){
+  if(e)e.stopPropagation();
+  const idx=DOCS.items.findIndex(d=>d.id===id);
+  if(idx<0)return;
+  const doc=DOCS.items.splice(idx,1)[0];
+  if(doc.isBlob){
+    try{URL.revokeObjectURL(doc.url)}catch(err){}
+  }
+  if(DOCS.activeId===id){
+    if(DOCS.items.length){
+      selectDoc(DOCS.items[0].id);
+    }else{
+      DOCS.activeId=null;
+      $('docEmpty').style.display='flex';
+      $('docViewPdf').style.display='none';
+      $('docViewImg').style.display='none';
+      $('docPdfFrame').removeAttribute('src');
+      $('docImgEl').removeAttribute('src');
+      $('docViewerTitle').textContent='Study Documents & Images';
+      $('btnDocInvert').style.display='none';
+      $('btnDocRotate').style.display='none';
+      $('btnDocWindow').style.display='none';
+      $('btnDocCloseCurrent').style.display='none';
+    }
+  }
+  renderDocList();
+  toast('Closed “'+doc.name+'”');
+}
+
+function renderDocList(){
+  const list=$('docList');
+  if(!list)return;
+  list.innerHTML='';
+  if(!DOCS.items.length){
+    list.innerHTML='<div class="dim tiny" style="padding:10px 4px;line-height:1.6">No documents open yet.<br>Drop or pick a PDF or image.</div>';
+    return;
+  }
+  DOCS.items.forEach(d=>{
+    const item=document.createElement('div');
+    item.className='doc-item'+(d.id===DOCS.activeId?' active':'');
+    const icon=d.type==='pdf'?'📄':'🖼️';
+    const sizeStr=d.size?(d.size>1048576?(d.size/1048576).toFixed(1)+' MB':Math.round(d.size/1024)+' KB'):'';
+    item.innerHTML='<span class="doc-ic">'+icon+'</span>'+
+      '<div class="doc-info">'+
+        '<span class="doc-name">'+esc(d.name)+'</span>'+
+        '<span class="doc-meta">'+esc([d.type.toUpperCase(),sizeStr,d.isWorkspace?'workspace':''].filter(Boolean).join(' · '))+'</span>'+
+      '</div>'+
+      '<button class="doc-del" title="Close document">✕</button>';
+    item.addEventListener('click',()=>selectDoc(d.id));
+    item.querySelector('.doc-del').addEventListener('click',(e)=>closeDoc(d.id,e));
+    list.appendChild(item);
+  });
+}
+
+function updateImgTransform(){
+  const img=$('docImgEl');
+  if(!img)return;
+  img.style.transform=`translate(${DOCS.panX}px, ${DOCS.panY}px) scale(${DOCS.zoom}) rotate(${DOCS.rotation}deg)`;
+  img.classList.toggle('inverted',DOCS.inverted);
+  $('lblImgZoom').textContent=Math.round(DOCS.zoom*100)+'%';
+  $('btnImgInvert').style.color=DOCS.inverted?'var(--accent)':'';
+  $('btnDocInvert').style.color=DOCS.inverted?'var(--accent)':'';
+}
+
+async function loadWorkspaceDocs(){
+  try{
+    const isLocalServer=location.protocol==='http:'||location.protocol==='https:';
+    const base=isLocalServer?'':'http://127.0.0.1:8899';
+    const r=await fetch(base+'/api/docs');
+    if(!r.ok)return;
+    const res=await r.json();
+    if(res&&Array.isArray(res.files)&&res.files.length){
+      res.files.forEach(f=>{
+        if(!DOCS.items.some(d=>d.name===f.name)){
+          DOCS.items.push({
+            id:'wsdoc_'+f.name,
+            name:f.name,
+            type:f.type,
+            size:f.size,
+            url:(isLocalServer?'':'http://127.0.0.1:8899')+f.url,
+            isBlob:false,
+            isWorkspace:true,
+            time:Date.now()
+          });
+        }
+      });
+      renderDocList();
+    }
+  }catch(e){}
+}
+
+/* --- docs wiring --- */
+$('btnDocsHome').addEventListener('click',openDocsScreen);
+$('btnDocsBlock').addEventListener('click',openDocsScreen);
+$('btnDocsBreak').addEventListener('click',openDocsScreen);
+$('btnDocsBack').addEventListener('click',closeOvl);
+$('btnDocPick').addEventListener('click',()=>$('docFileInput').click());
+$('btnDocSidebarAdd').addEventListener('click',()=>$('docFileInput').click());
+$('docDropzone').addEventListener('click',()=>$('docFileInput').click());
+$('btnDocEmptyOpen').addEventListener('click',()=>$('docFileInput').click());
+$('docFileInput').addEventListener('change',e=>{
+  Array.from(e.target.files||[]).forEach(addDocFromFile);
+  e.target.value='';
+});
+$('btnDocCloseCurrent').addEventListener('click',()=>{if(DOCS.activeId)closeDoc(DOCS.activeId)});
+$('btnDocWindow').addEventListener('click',()=>{
+  const cur=DOCS.items.find(d=>d.id===DOCS.activeId);
+  if(cur)launchWindow({id:'doc_'+cur.id,name:cur.name,url:cur.url});
+});
+
+/* image viewer controls */
+$('btnImgZoomIn').addEventListener('click',()=>{DOCS.zoom=Math.min(6,DOCS.zoom*1.25);updateImgTransform()});
+$('btnImgZoomOut').addEventListener('click',()=>{DOCS.zoom=Math.max(0.15,DOCS.zoom/1.25);updateImgTransform()});
+$('btnImgFit').addEventListener('click',()=>{DOCS.zoom=1;DOCS.panX=0;DOCS.panY=0;updateImgTransform()});
+$('btnImgActual').addEventListener('click',()=>{DOCS.zoom=1;DOCS.panX=0;DOCS.panY=0;updateImgTransform()});
+$('btnImgInvert').addEventListener('click',()=>{DOCS.inverted=!DOCS.inverted;updateImgTransform()});
+$('btnDocInvert').addEventListener('click',()=>{DOCS.inverted=!DOCS.inverted;updateImgTransform()});
+$('btnImgRotate').addEventListener('click',()=>{DOCS.rotation=(DOCS.rotation+90)%360;updateImgTransform()});
+$('btnDocRotate').addEventListener('click',()=>{DOCS.rotation=(DOCS.rotation+90)%360;updateImgTransform()});
+
+const docViewport=$('docImgViewport');
+docViewport.addEventListener('mousedown',e=>{
+  if(!DOCS.activeId)return;
+  DOCS.isDragging=true;
+  DOCS.dragStartX=e.clientX-DOCS.panX;
+  DOCS.dragStartY=e.clientY-DOCS.panY;
+});
+window.addEventListener('mousemove',e=>{
+  if(!DOCS.isDragging)return;
+  DOCS.panX=e.clientX-DOCS.dragStartX;
+  DOCS.panY=e.clientY-DOCS.dragStartY;
+  updateImgTransform();
+});
+window.addEventListener('mouseup',()=>{DOCS.isDragging=false});
+docViewport.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const delta=e.deltaY<0?1.15:0.87;
+  DOCS.zoom=Math.max(0.15,Math.min(6,DOCS.zoom*delta));
+  updateImgTransform();
+},{passive:false});
+
+/* global drag & drop for PDFs and images */
+window.addEventListener('dragover',e=>{
+  e.preventDefault();
+  if(e.dataTransfer&&e.dataTransfer.types&&e.dataTransfer.types.includes('Files')){
+    $('globalDropZone').classList.add('on');
+  }
+});
+window.addEventListener('dragleave',e=>{
+  if(!e.relatedTarget||e.relatedTarget===document.documentElement){
+    $('globalDropZone').classList.remove('on');
+  }
+});
+window.addEventListener('drop',e=>{
+  e.preventDefault();
+  $('globalDropZone').classList.remove('on');
+  const files=Array.from(e.dataTransfer.files||[]);
+  if(files.length){
+    let opened=false;
+    files.forEach(f=>{
+      const isDoc=/\.pdf$/i.test(f.name)||f.type==='application/pdf'||f.type.startsWith('image/')||/\.(png|jpe?g|webp|svg|gif|bmp)$/i.test(f.name);
+      if(isDoc){
+        addDocFromFile(f);
+        opened=true;
+      }
+    });
+    if(opened)openDocsScreen();
+  }
+});
+
 /* local server check & data migration */
 function checkMigrationHash(){
   try{
@@ -2211,7 +2842,7 @@ $('btnCloseBanner').addEventListener('click',()=>{
 });
 
 /* ---------------- go ---------------- */
-checkMigrationHash();checkLocalServer();updateYtNotice();
+checkMigrationHash();checkLocalServer();updateYtNotice();loadWorkspaceDocs();
 renderHome();renderYt();renderApps();videoNow(null);setPhase(PH.HOME);
 requestAnimationFrame(paint);
 </script>
