@@ -933,9 +933,9 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
 #docImgEl{max-width:96%;max-height:96%;object-fit:contain;transition:transform .12s ease-out, filter .2s ease;pointer-events:none}
 #docImgEl.inverted{filter:invert(0.92) hue-rotate(180deg) contrast(1.1)}
 
-/* ---------- active guided break (neuro-rest) ---------- */
+/* ---------- active guided break (intuitive & familiar) ---------- */
 #scr-break{user-select:none}
-.break-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;max-width:880px;width:100%;margin:0 auto;padding:70px 20px 30px;min-height:0}
+.break-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;max-width:880px;width:100%;margin:0 auto;padding:70px 20px 30px;min-height:0}
 .break-timeline{display:flex;gap:8px;max-width:760px;width:100%;overflow-x:auto;padding:4px}
 .break-step-pill{
   flex:1;
@@ -947,7 +947,7 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
   background:rgba(255,255,255,.025);
   border:1px solid rgba(255,255,255,.065);
   border-radius:999px;
-  font-size:12px;
+  font-size:12.5px;
   font-weight:500;
   color:var(--dim);
   cursor:pointer;
@@ -959,59 +959,115 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
 .break-step-pill.done{color:var(--good);border-color:rgba(128,216,165,.35);background:rgba(128,216,165,.05)}
 .break-card{
   width:100%;
-  max-width:700px;
+  max-width:680px;
   background:rgba(14,18,27,.75);
   border:1px solid rgba(255,255,255,.08);
   border-radius:28px;
-  padding:28px 34px;
+  padding:26px 34px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:18px;
+  gap:16px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 24px 70px rgba(0,0,0,.55);
   backdrop-filter:blur(24px) saturate(140%);
   position:relative;
   overflow:hidden;
 }
 .break-header-row{display:flex;justify-content:space-between;align-items:center;width:100%}
-.break-badge{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);background:rgba(240,194,123,.1);padding:5px 12px;border-radius:999px;font-weight:600}
-.break-timer-sm{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--ink);letter-spacing:1px}
-.break-stage-visual{width:100%;height:130px;display:flex;align-items:center;justify-content:center;position:relative}
-.break-optic-visual{width:100%;max-width:320px;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.break-badge{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:rgba(240,194,123,.1);padding:5px 12px;border-radius:999px;font-weight:600}
+.break-timer-sm{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--ink);letter-spacing:1px}
+.break-stage-visual{width:100%;height:140px;display:flex;align-items:center;justify-content:center;position:relative}
+
+/* Visual 1: Eye rest horizon */
+.break-optic-visual{width:100%;max-width:360px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;gap:12px}
+.optic-scene{position:relative;width:240px;height:70px;display:flex;align-items:center;justify-content:center}
 .optic-horizon{width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(140,201,248,.6),transparent);position:relative}
 .optic-wave{position:absolute;width:180px;height:65px;border:1.5px solid rgba(140,201,248,.35);border-radius:50%;animation:opticPulse 4s ease-in-out infinite}
 .optic-wave:nth-child(2){animation-delay:1.5s;border-color:rgba(240,194,123,.35)}
-@keyframes opticPulse{0%,100%{transform:scale(.7);opacity:.3}50%{transform:scale(1.2);opacity:.9}}
+.optic-eye-badge{position:absolute;font-size:26px;animation:eyeFloat 3s ease-in-out infinite}
+@keyframes eyeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.break-phase-countdown{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:4px 12px;border-radius:999px;font-family:var(--mono)}
+
+/* Visual 2: Breath circle with instant text */
 .break-breath-circle{
-  width:110px;
-  height:110px;
+  width:130px;
+  height:130px;
   border-radius:50%;
   background:radial-gradient(circle at 38% 32%, rgba(140,201,248,.35), rgba(140,201,248,.07) 65%, transparent);
-  border:1.5px solid rgba(140,201,248,.5);
+  border:2px solid rgba(140,201,248,.5);
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
   transition:transform .4s ease, border-color .4s ease;
-  box-shadow:0 0 30px rgba(140,201,248,.2);
+  box-shadow:0 0 32px rgba(140,201,248,.2);
 }
-.break-breath-text{font-size:12.5px;color:var(--air);font-weight:500;text-align:center;padding:6px;line-height:1.35}
-.break-stretch-visual{font-size:52px;animation:stretchBounce 2.2s ease-in-out infinite}
-@keyframes stretchBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.b-action{font-size:14px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#fff}
+.b-action.inhale{color:var(--air);text-shadow:0 0 12px rgba(140,201,248,.6)}
+.b-action.topoff{color:var(--accent);text-shadow:0 0 12px rgba(240,194,123,.6)}
+.b-action.exhale{color:#b0c0d8;text-shadow:0 0 8px rgba(176,192,216,.4)}
+.b-sub{font-size:10.5px;color:var(--dim);margin-top:2px;font-weight:500}
+
+/* Breath loop tracker */
+.break-loop-tracker{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:4px}
+.break-loop-label{font-size:11.5px;color:var(--dim);font-weight:500;letter-spacing:.04em}
+.break-loop-dots{display:flex;gap:6px}
+.break-loop-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);transition:all .3s ease}
+.break-loop-dot.done{background:var(--good);border-color:var(--good);box-shadow:0 0 6px rgba(128,216,165,.5)}
+.break-loop-dot.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px rgba(240,194,123,.6);transform:scale(1.2)}
+
+/* Visual 3: Stretch & water 3 tiles */
+.break-stretch-visual{display:flex;gap:14px;align-items:center;justify-content:center}
+.stretch-tile{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;
+  padding:12px 16px;
+  min-width:96px;
+  cursor:pointer;
+  user-select:none;
+  transition:all .2s ease;
+}
+.stretch-tile:hover{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.16);
+  transform:translateY(-2px);
+}
+.stretch-tile.done{
+  background:rgba(128,216,165,.1);
+  border-color:rgba(128,216,165,.4);
+}
+.stretch-tile.done .st-lbl{
+  color:var(--good);
+}
+.stretch-tile .st-ic{font-size:28px}
+.stretch-tile .st-lbl{font-size:11.5px;font-weight:600;color:var(--ink);letter-spacing:.02em;text-align:center}
+
+/* Visual 4: Mind rest nebula */
+.break-nebula-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
 .break-nebula{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle, rgba(128,216,165,.25) 0%, rgba(240,194,123,.18) 50%, transparent 70%);filter:blur(8px);animation:nebulaGlow 4s ease-in-out infinite}
-@keyframes nebulaGlow{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.25);opacity:.95}}
-.break-title{font-size:19px;font-weight:600;color:var(--ink);text-align:center}
-.break-instruction{font-size:14px;color:var(--dim);line-height:1.6;text-align:center;max-width:540px}
+.nebula-center{position:absolute;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.nebula-center .nc-ic{font-size:26px}
+.nebula-center .nc-lbl{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+
+.break-title{font-size:20px;font-weight:600;color:var(--ink);text-align:center;letter-spacing:-.01em}
+.break-instruction{font-size:13.5px;color:var(--dim);line-height:1.5;text-align:center;max-width:520px}
 .break-checklist{display:flex;flex-direction:column;gap:8px;width:100%;max-width:460px}
 .break-check-item{
   display:flex;
   align-items:center;
   gap:12px;
-  font-size:12.5px;
+  font-size:13px;
+  font-weight:500;
   color:var(--dim);
   background:rgba(255,255,255,.025);
   border:1px solid rgba(255,255,255,.065);
   border-radius:12px;
-  padding:9px 14px;
+  padding:10px 16px;
   cursor:pointer;
   transition:all .18s ease;
 }
@@ -1019,16 +1075,32 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
 .break-check-item.done{color:var(--ink);border-color:rgba(128,216,165,.35);background:rgba(128,216,165,.06)}
 .break-check-box{width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:11px;flex:none;transition:.15s}
 .break-check-item.done .break-check-box{border-color:var(--good);background:var(--good);color:#07080c;font-weight:700}
+
+/* Collapsible science drawer */
+.break-science-drawer{width:100%;max-width:500px;text-align:center}
+.break-science-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11.5px;
+  color:var(--faint);
+  cursor:pointer;
+  padding:3px 10px;
+  border-radius:999px;
+  transition:all .15s ease;
+  user-select:none;
+}
+.break-science-toggle:hover{color:var(--accent)}
 .break-science-note{
   font-size:12px;
   color:var(--accent);
   background:rgba(240,194,123,.06);
-  border:1px solid rgba(240,194,123,.22);
+  border:1px solid rgba(240,194,123,.2);
   border-radius:12px;
   padding:9px 16px;
   text-align:center;
   line-height:1.5;
-  max-width:540px;
+  margin-top:8px;
 }
 .break-controls{display:flex;gap:10px;align-items:center;margin-top:2px}
 
@@ -1141,10 +1213,10 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
   </div>
 </section>
 
-<!-- ============ BREAK (ACTIVE GUIDED NEURO-REST) ============ -->
+<!-- ============ BREAK (INTUITIVE & FAMILIAR) ============ -->
 <section class="screen" id="scr-break">
   <div class="topbar">
-    <div class="stage-tag" id="breakStageTag">break · neuro reset</div>
+    <div class="stage-tag" id="breakStageTag">break · refresh &amp; reset</div>
     <div style="display:flex;gap:8px">
       <button class="ghost" id="btnVideoBreak" title="Watch a video during the break">▶ Video</button>
       <button class="ghost" id="btnDocsBreak" title="Study documents — PDFs, slides, images">📄 Docs</button>
@@ -1156,16 +1228,16 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
   <div class="break-wrap">
     <!-- Rest timeline pills -->
     <div class="break-timeline" id="breakTimeline">
-      <button class="break-step-pill active" data-bstep="0"><span>👁️</span> 1. Optic Defocus</button>
-      <button class="break-step-pill" data-bstep="1"><span>🌬️</span> 2. Autonomic Reset</button>
-      <button class="break-step-pill" data-bstep="2"><span>🧘</span> 3. Decompress &amp; Water</button>
-      <button class="break-step-pill" data-bstep="3"><span>🧠</span> 4. Brain Rest</button>
+      <button class="break-step-pill active" data-bstep="0"><span>👁️</span> 1. Look Away</button>
+      <button class="break-step-pill" data-bstep="1"><span>🌬️</span> 2. Deep Breaths</button>
+      <button class="break-step-pill" data-bstep="2"><span>🧘</span> 3. Stretch &amp; Water</button>
+      <button class="break-step-pill" data-bstep="3"><span>🧠</span> 4. Rest Mind</button>
     </div>
 
     <!-- Active rest guidance card -->
     <div class="break-card">
       <div class="break-header-row">
-        <span class="break-badge" id="breakStepBadge">PHASE 1 / 4 · OPTIC DEFOCUS</span>
+        <span class="break-badge" id="breakStepBadge">STEP 1 / 4 · LOOK AWAY</span>
         <div class="break-timer-sm" id="breakTimer">05:00</div>
       </div>
 
@@ -1173,28 +1245,61 @@ input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
       <div class="break-stage-visual" id="breakVisualArea">
         <!-- Visual 1: Optic horizon -->
         <div class="break-optic-visual" id="visOptic">
-          <div class="optic-horizon"></div>
-          <div class="optic-wave"></div>
-          <div class="optic-wave"></div>
+          <div class="optic-scene">
+            <div class="optic-horizon"></div>
+            <div class="optic-wave"></div>
+            <div class="optic-wave"></div>
+            <div class="optic-eye-badge">👁️</div>
+          </div>
+          <div class="break-phase-countdown">👁️ Look into the distance: <b id="opticTimeRem">60s</b></div>
         </div>
-        <!-- Visual 2: Physiological sigh breath circle -->
-        <div class="break-breath-circle" id="visBreath" style="display:none">
-          <div class="break-breath-text" id="breakBreathText">Deep inhale<br>through nose</div>
+        <!-- Visual 2: Physiological sigh breath circle with loop tracker -->
+        <div id="visBreathWrap" style="display:none;flex-direction:column;align-items:center;gap:10px">
+          <div class="break-breath-circle" id="visBreath">
+            <div class="break-breath-text" id="breakBreathText">
+              <div class="b-action inhale">1. INHALE</div>
+              <div class="b-sub">deep through nose</div>
+            </div>
+          </div>
+          <div class="break-loop-tracker" id="breakLoopTracker">
+            <div class="break-loop-label">Breath loop: <b id="curBreathNum" style="color:var(--accent)">1</b> of 5</div>
+            <div class="break-loop-dots">
+              <span class="break-loop-dot active"></span>
+              <span class="break-loop-dot"></span>
+              <span class="break-loop-dot"></span>
+              <span class="break-loop-dot"></span>
+              <span class="break-loop-dot"></span>
+            </div>
+          </div>
         </div>
         <!-- Visual 3: Physical stretch & water -->
-        <div class="break-stretch-visual" id="visStretch" style="display:none">💧 🧘</div>
+        <div class="break-stretch-visual" id="visStretch" style="display:none">
+          <div class="stretch-tile"><span class="st-ic">🧍‍♂️</span><span class="st-lbl">Stand Up</span></div>
+          <div class="stretch-tile"><span class="st-ic">🔄</span><span class="st-lbl">Roll Shoulders</span></div>
+          <div class="stretch-tile"><span class="st-ic">💧</span><span class="st-lbl">Drink Water</span></div>
+        </div>
         <!-- Visual 4: Neural consolidation nebula -->
-        <div class="break-nebula" id="visNebula" style="display:none"></div>
+        <div class="break-nebula-wrap" id="visNebula" style="display:none">
+          <div class="break-nebula"></div>
+          <div class="nebula-center">
+            <span class="nc-ic">😌</span>
+            <span class="nc-lbl">Close Eyes</span>
+            <span style="font-family:var(--mono);font-size:13px;color:var(--ink)" id="nsdrTimeRem">01:15</span>
+          </div>
+        </div>
       </div>
 
-      <div class="break-title" id="breakTitle">Optic Defocus &amp; Eye Decoupling</div>
-      <div class="break-instruction" id="breakInstruction">Look at least 20 feet away or gaze out a window. Soften your eyes into panoramic vision.</div>
+      <div class="break-title" id="breakTitle">Look Far Away</div>
+      <div class="break-instruction" id="breakInstruction">Look out a window or across the room. Blink and relax your eyes.</div>
 
       <!-- Interactive Micro-Checklist -->
       <div class="break-checklist" id="breakChecklist"></div>
 
-      <!-- Neuroscience Fact Note -->
-      <div class="break-science-note" id="breakScienceNote">Dr. Huberman / Stanford: Relaxes ciliary muscle contraction, dials down sympathetic arousal, and restores retinal dopamine.</div>
+      <!-- Collapsible Science Note -->
+      <details class="break-science-drawer">
+        <summary class="break-science-toggle">💡 Why this works</summary>
+        <div class="break-science-note" id="breakScienceNote"></div>
+      </details>
 
       <!-- Navigation buttons -->
       <div class="break-controls">
@@ -1912,75 +2017,83 @@ function finishBlock(completed){
     end:completed?RT.block.start+RT.block.minutes*60000:Date.now(),completed:!!completed});
 }
 /* =====================================================================
-   ACTIVE GUIDED NEURO-REST (SCIENCE-BACKED BREAK EXPERIENCE)
+   ACTIVE GUIDED NEURO-REST (EASY, FAMILIAR & INSTANTLY UNDERSTANDABLE)
    ===================================================================== */
 const BREAK_STAGES = [
   {
     id: 'optic',
-    name: 'Optic Defocus',
-    tag: 'PHASE 1 / 4 · OPTIC DEFOCUS & EYE RELIEF',
+    name: 'Look Away',
+    tag: 'STEP 1 / 4 · LOOK AWAY',
     icon: '👁️',
     pct: 0.20,
-    title: 'Optic Defocus & Eye Decoupling',
-    prompt: 'Look at least 20 feet away or gaze out a window. Soften your eyes into panoramic vision.',
-    science: 'Dr. Andrew Huberman / Stanford: Relaxes tonic ciliary muscle contraction from screen focus, shifts autonomic tone out of sympathetic alertness, and restores retinal dopamine.',
+    title: 'Look Far Away',
+    prompt: 'Look out a window or at the furthest wall. Rest your eyes from the screen.',
+    science: 'Looking far away relaxes eye muscles after staring at a screen, lowering stress and refreshing your vision.',
     checks: [
-      'Look 20+ feet away or gaze out of a window',
-      'Soften gaze into panoramic vision (notice side walls without moving eyes)',
-      'Slowly blink 10 times to re-lubricate your corneas'
+      'Look 20+ feet away or out a window',
+      'Blink softly to relax your eyes'
     ]
   },
   {
     id: 'sigh',
-    name: 'Autonomic Reset',
-    tag: 'PHASE 2 / 4 · PHYSIOLOGICAL SIGHS',
+    name: 'Deep Breaths',
+    tag: 'STEP 2 / 4 · RESET BREATH',
     icon: '🌬️',
     pct: 0.25,
-    title: 'Physiological Sighs (Autonomic Reset)',
-    prompt: 'Two quick inhales through the nose, then one long, slow, extended exhale through the mouth.',
-    science: 'Fastest biological tool discovered to offload excess carbon dioxide, reinflate collapsed pulmonary alveoli, and activate the calming parasympathetic vagus nerve.',
+    title: 'Double Inhale, Slow Exhale',
+    prompt: '2 quick inhales through your nose, then 1 slow exhale through your mouth.',
+    science: 'Two quick inhales followed by a long exhale is the fastest natural way to slow your heart rate and release tension.',
     checks: [
-      'Inhale deeply through your nose (2 seconds)',
-      'Sip in a quick top-off burst of air at the very top (1 second)',
-      'Long, slow, relaxed mouth exhale (5 to 6 seconds)'
+      'Inhale deeply through your nose',
+      'Take a quick extra sip of air at the top',
+      'Slow, relaxed mouth exhale'
     ]
   },
   {
     id: 'stretch',
-    name: 'Decompress & Water',
-    tag: 'PHASE 3 / 4 · POSTURE & HYDRATION',
+    name: 'Stretch & Water',
+    tag: 'STEP 3 / 4 · STRETCH & WATER',
     icon: '🧘',
     pct: 0.30,
-    title: 'Postural Decompression & Hydration',
-    prompt: 'Stand up. Roll shoulders backwards 5 times, reach both arms overhead, and drink a glass of water.',
-    science: 'Prolonged sitting causes venous blood pooling in legs and cuts prefrontal cortex oxygenation by up to 15%. Drinking water re-hydrates brain glial cells and restores mental stamina.',
+    title: 'Stand Up & Drink Water',
+    prompt: 'Stand up, roll your shoulders, reach up high, and drink some water.',
+    science: 'Standing up restores blood flow after sitting, and water keeps your brain sharp for the next focus block.',
     checks: [
       'Stand up out of your chair',
-      'Roll shoulders back 5 times & reach both arms overhead',
-      'Drink a full glass of cool water'
+      'Roll shoulders back & stretch arms overhead',
+      'Drink a glass of water'
     ]
   },
   {
     id: 'nsdr',
-    name: 'Brain Rest',
-    tag: 'PHASE 4 / 4 · NSDR CONSOLIDATION',
+    name: 'Rest Mind',
+    tag: 'STEP 4 / 4 · REST MIND',
     icon: '🧠',
     pct: 0.25,
-    title: 'NSDR · Non-Sleep Deep Rest & Synaptic Consolidation',
-    prompt: 'Close your eyes. Zero inputs. Let your mind wander freely in total mental silence.',
-    science: 'Offline rest is when memory consolidation occurs — neural replay stabilizes newly learned pathways at 10x-20x speed. Checking phones or reading disrupts this consolidation.',
+    title: 'Close Your Eyes & Relax',
+    prompt: 'Put your phone away. Close your eyes and do nothing until the chime rings.',
+    science: 'Resting with your eyes closed without looking at your phone helps your brain lock in what you just learned.',
     checks: [
-      'Close your eyes or rest in dim lighting',
-      'Zero sensory inputs — no phone, no reading, no social media',
-      'Let thoughts float by without grabbing onto any of them'
+      'Close your eyes (no phone, no reading)',
+      'Just relax until the session bell rings'
     ]
   }
 ];
 
 function initBreakExperience(){
   RT.breakStageIndex = 0;
+  RT.breakManualStage = null;
   RT.breakCheckState = {};
+  RT.stageStartTime = Date.now();
   setBreakStage(0, false);
+}
+
+function syncStretchTiles(){
+  const tiles = document.querySelectorAll('.stretch-tile');
+  tiles.forEach((tile, ti) => {
+    const isDone = !!RT.breakCheckState['stretch_' + ti];
+    tile.classList.toggle('done', isDone);
+  });
 }
 
 function setBreakStage(idx, isManualJump){
@@ -1988,6 +2101,10 @@ function setBreakStage(idx, isManualJump){
   if(idx >= BREAK_STAGES.length) idx = BREAK_STAGES.length - 1;
   const stage = BREAK_STAGES[idx];
   RT.breakStageIndex = idx;
+  if(isManualJump){
+    RT.breakManualStage = idx;
+  }
+  RT.stageStartTime = Date.now();
   
   // Update timeline pills
   const pills = document.querySelectorAll('.break-step-pill');
@@ -2004,7 +2121,8 @@ function setBreakStage(idx, isManualJump){
   
   // Show active visual
   $('visOptic').style.display = stage.id === 'optic' ? 'flex' : 'none';
-  $('visBreath').style.display = stage.id === 'sigh' ? 'flex' : 'none';
+  const bWrap = $('visBreathWrap');
+  if(bWrap) bWrap.style.display = stage.id === 'sigh' ? 'flex' : 'none';
   $('visStretch').style.display = stage.id === 'stretch' ? 'flex' : 'none';
   $('visNebula').style.display = stage.id === 'nsdr' ? 'flex' : 'none';
   
@@ -2021,10 +2139,13 @@ function setBreakStage(idx, isManualJump){
       RT.breakCheckState[key] = !RT.breakCheckState[key];
       item.classList.toggle('done', RT.breakCheckState[key]);
       item.querySelector('.break-check-box').textContent = RT.breakCheckState[key] ? '✓' : '';
+      syncStretchTiles();
     });
     cl.appendChild(item);
   });
   
+  syncStretchTiles();
+
   if(isManualJump) softChime();
 }
 
@@ -2034,47 +2155,86 @@ function updateBreakPhase(rem, total){
   const frac = Math.max(0, Math.min(1, elapsed / total));
   
   // Determine current stage index based on cumulative percentage
-  let cum = 0, currentIdx = 0;
+  let cum = 0, autoIdx = 0;
   for(let i = 0; i < BREAK_STAGES.length; i++){
     cum += BREAK_STAGES[i].pct;
     if(frac < cum || i === BREAK_STAGES.length - 1){
-      currentIdx = i;
+      autoIdx = i;
       break;
     }
   }
   
-  if(currentIdx !== RT.breakStageIndex){
-    softChime();
-    setBreakStage(currentIdx, false);
+  // If user has not manually jumped to a stage, follow auto progression
+  if(RT.breakManualStage === null || RT.breakManualStage === undefined){
+    if(autoIdx !== RT.breakStageIndex){
+      softChime();
+      setBreakStage(autoIdx, false);
+    }
   }
   
-  // If in physiological sigh breath stage, animate breathing circle smoothly!
-  if(BREAK_STAGES[RT.breakStageIndex].id === 'sigh'){
-    const sighCycle = (elapsed / 1000) % 8; // 8-second sigh cycle
+  const stage = BREAK_STAGES[RT.breakStageIndex];
+  const stageElapsed = Math.max(0, (Date.now() - (RT.stageStartTime || Date.now())) / 1000);
+
+  // Phase 1 live countdown
+  if(stage.id === 'optic'){
+    const opticRem = Math.max(0, Math.ceil(60 - stageElapsed));
+    const opticEl = $('opticTimeRem');
+    if(opticEl){
+      opticEl.textContent = opticRem > 0 ? (opticRem + 's') : 'Done ✓';
+    }
+  }
+  
+  // Phase 2: Live breath guidance & loop counter
+  if(stage.id === 'sigh'){
+    const sighCycle = stageElapsed % 8; // 8-second sigh cycle
     const circle = $('visBreath');
     const btext = $('breakBreathText');
-    if(sighCycle < 2.2){
-      // Inhale 1 (deep)
-      const p = sighCycle / 2.2;
-      const s = 1.0 + p * 0.25;
-      circle.style.transform = `scale(${s})`;
-      circle.style.borderColor = 'rgba(158,216,255,.7)';
-      btext.innerHTML = 'Deep inhale<br><span style="font-size:11px;opacity:.8">through nose (1/2)</span>';
-    }else if(sighCycle < 3.2){
-      // Inhale 2 (top-off burst)
-      const p = (sighCycle - 2.2) / 1.0;
-      const s = 1.25 + p * 0.2;
-      circle.style.transform = `scale(${s})`;
-      circle.style.borderColor = 'rgba(255,201,120,.95)';
-      btext.innerHTML = '<b>Top-off inhale!</b><br><span style="font-size:11px;color:var(--accent)">sip extra air (2/2)</span>';
-    }else{
-      // Exhale (long & slow)
-      const p = (sighCycle - 3.2) / 4.8;
-      const s = 1.45 - p * 0.55;
-      circle.style.transform = `scale(${s})`;
-      circle.style.borderColor = 'rgba(158,216,255,.3)';
-      btext.innerHTML = 'Long, slow exhale<br><span style="font-size:11px;opacity:.8">through mouth…</span>';
+    const breathNum = Math.min(5, Math.floor(stageElapsed / 8) + 1);
+    const allDone = stageElapsed >= 40;
+    
+    // Update breath loop tracker dots
+    const curNumEl = $('curBreathNum');
+    if(curNumEl) curNumEl.textContent = allDone ? 5 : breathNum;
+    const dots = document.querySelectorAll('.break-loop-dot');
+    dots.forEach((dot, di) => {
+      dot.classList.toggle('done', allDone || di < breathNum - 1);
+      dot.classList.toggle('active', !allDone && di === breathNum - 1);
+    });
+
+    if(circle && btext){
+      if(allDone){
+        circle.style.transform = 'scale(1.0)';
+        circle.style.borderColor = 'rgba(126,211,160,.8)';
+        btext.innerHTML = '<div class="b-action done" style="color:var(--good);font-weight:700">5 / 5 DONE ✓</div><div class="b-sub">feel your heart slow</div>';
+      }else if(sighCycle < 2.3){
+        // Inhale 1 (deep)
+        const p = sighCycle / 2.3;
+        const s = 1.0 + p * 0.28;
+        circle.style.transform = `scale(${s})`;
+        circle.style.borderColor = 'rgba(140,201,248,.8)';
+        btext.innerHTML = '<div class="b-action inhale">1. INHALE</div><div class="b-sub">deep through nose</div>';
+      }else if(sighCycle < 3.4){
+        // Inhale 2 (top-off burst)
+        const p = (sighCycle - 2.3) / 1.1;
+        const s = 1.28 + p * 0.22;
+        circle.style.transform = `scale(${s})`;
+        circle.style.borderColor = 'rgba(240,194,123,.95)';
+        btext.innerHTML = '<div class="b-action topoff">2. INHALE MORE!</div><div class="b-sub">extra sip of air</div>';
+      }else{
+        // Exhale (long & slow)
+        const p = (sighCycle - 3.4) / 4.6;
+        const s = 1.5 - p * 0.55;
+        circle.style.transform = `scale(${s})`;
+        circle.style.borderColor = 'rgba(140,201,248,.35)';
+        btext.innerHTML = '<div class="b-action exhale">3. SLOW EXHALE</div><div class="b-sub">sigh out mouth…</div>';
+      }
     }
+  }
+
+  // Phase 4: Remaining rest timer
+  if(stage.id === 'nsdr'){
+    const nsdrEl = $('nsdrTimeRem');
+    if(nsdrEl) nsdrEl.textContent = fmtClock(rem);
   }
 }
 
@@ -3247,6 +3407,16 @@ $('btnBreakPrev').addEventListener('click',()=>setBreakStage(RT.breakStageIndex-
 $('btnBreakNext').addEventListener('click',()=>setBreakStage(RT.breakStageIndex+1,true));
 document.querySelectorAll('.break-step-pill').forEach(btn=>{
   btn.addEventListener('click',()=>setBreakStage(+btn.dataset.bstep,true));
+});
+document.querySelectorAll('.stretch-tile').forEach((tile, ti)=>{
+  tile.addEventListener('click', ()=>{
+    const key = 'stretch_' + ti;
+    RT.breakCheckState[key] = !RT.breakCheckState[key];
+    syncStretchTiles();
+    if(BREAK_STAGES[RT.breakStageIndex] && BREAK_STAGES[RT.breakStageIndex].id === 'stretch'){
+      setBreakStage(RT.breakStageIndex, false);
+    }
+  });
 });
 
 /* =====================================================================
